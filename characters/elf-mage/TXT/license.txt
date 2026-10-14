@@ -1,0 +1,4 @@
+Licença do rig de referência fornecido no pacote Orc:
+https://craftpix.net/file-licenses/
+
+Consulte credits.txt para distinguir os assets gerados do rig reutilizado.

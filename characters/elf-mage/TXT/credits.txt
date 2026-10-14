@@ -1,0 +1,9 @@
+Rig de referência: Orc do pacote craftpix-064112-free-orc-ogre-and-goblin-chibi-2d-game-sprites,
+enviado pelo usuário. Licença indicada no pacote original:
+https://craftpix.net/file-licenses/
+
+Desenho e texturas do elfo mago: novos assets gerados para este projeto,
+inspirados nas referências enviadas. Não foi copiada a ilustração do elfo nem
+o personagem encapuzado, e não foi aplicada a marca Craftpix aos novos GIFs.
+
+A licença do rig de referência continua aplicável ao material derivado do SCML.
