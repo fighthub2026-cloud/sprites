@@ -1,0 +1,105 @@
+{
+  "clips": {
+    "Back - Attacking": {
+      "start": 0,
+      "count": 10
+    },
+    "Back - Hurt": {
+      "start": 10,
+      "count": 10
+    },
+    "Back - Idle": {
+      "start": 20,
+      "count": 16
+    },
+    "Back - Running": {
+      "start": 36,
+      "count": 12
+    },
+    "Back - Walking": {
+      "start": 48,
+      "count": 20
+    },
+    "Dying": {
+      "start": 68,
+      "count": 10
+    },
+    "Front - Attacking": {
+      "start": 78,
+      "count": 10
+    },
+    "Front - Hurt": {
+      "start": 88,
+      "count": 10
+    },
+    "Front - Idle": {
+      "start": 98,
+      "count": 16
+    },
+    "Front - Idle Blinking": {
+      "start": 114,
+      "count": 16
+    },
+    "Front - Running": {
+      "start": 130,
+      "count": 12
+    },
+    "Front - Walking": {
+      "start": 142,
+      "count": 20
+    },
+    "Left - Attacking": {
+      "start": 162,
+      "count": 10
+    },
+    "Left - Hurt": {
+      "start": 172,
+      "count": 10
+    },
+    "Left - Idle": {
+      "start": 182,
+      "count": 16
+    },
+    "Left - Idle Blinking": {
+      "start": 198,
+      "count": 16
+    },
+    "Left - Running": {
+      "start": 214,
+      "count": 12
+    },
+    "Left - Walking": {
+      "start": 226,
+      "count": 20
+    },
+    "Right - Attacking": {
+      "start": 246,
+      "count": 10
+    },
+    "Right - Hurt": {
+      "start": 256,
+      "count": 10
+    },
+    "Right - Idle": {
+      "start": 266,
+      "count": 16
+    },
+    "Right - Idle Blinking": {
+      "start": 282,
+      "count": 16
+    },
+    "Right - Running": {
+      "start": 298,
+      "count": 12
+    },
+    "Right - Walking": {
+      "start": 310,
+      "count": 20
+    }
+  },
+  "cols": 16,
+  "width": 256,
+  "height": 224,
+  "ax": 128,
+  "ay": 180
+}
