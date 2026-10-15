@@ -7,7 +7,7 @@ const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta'
 const definitions=[
  {id:'head',label:'Cabelo / capuz',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Capuz','Tecido azul-escuro.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
  {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Concentrado','Olhos verdes e sobrancelhas castanhas.'],['Aventureiro','Olhos azuis e expressão confiante.'],['Veterano','Olhos âmbar e sobrancelhas prateadas.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Túnica, mangas, mãos e botas do mesmo conjunto.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.']]},
  {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
@@ -17,37 +17,11 @@ for(const name of Object.keys(DATA.rig.frameCounts))select.add(new Option(animat
 select.value='Idle';
 
 function makeCanvas(width,height){const c=document.createElement('canvas');c.width=width;c.height=height;return c}
-function weaponTransform(input){
- const value={...input},angle=Number(input.angle||0)*Math.PI/180;
- value.x=Number(input.x||0)+Math.cos(angle)*64+Math.sin(angle)*64;
- value.y=Number(input.y||0)+Math.sin(angle)*64-Math.cos(angle)*64;
- value.angle=(Number(input.angle||0)+40)%360;
- value.file='9';value.a=state.accessory?1:0;
- value.pivot_x=([0,90,90,44][state.accessory])/400;value.pivot_y=.5;
- return value;
-}
-function selectedRig(){
- const rig=structuredClone(DATA.rig);
- for(const animation of rig.animations){
-  animation.timelines['15']=animation.timelines['8'].map(key=>({...key,transform:weaponTransform(key.transform)}));
-  for(const key of animation.mainline){const hand=key.objects.find(ref=>ref.timeline==='8');key.objects.find(ref=>ref.timeline==='15').key=hand.key}
- }
- return rig;
-}
+// Keep native weapon bones, pivots, visibility and keyframes in every action.
+function selectedRig(){return structuredClone(DATA.rig)}
 function selectedSCML(){
- const doc=new DOMParser().parseFromString(DATA.scml,'application/xml');doc.querySelector('entity').setAttribute('name','CustomAvatar');
- for(const animation of doc.querySelectorAll('animation')){
-  const timelines=[...animation.querySelectorAll('timeline')],weapon=timelines.find(t=>t.getAttribute('name')==='Sword'),hand=timelines.find(t=>t.getAttribute('name')==='Left Hand');
-  weapon.replaceChildren();
-  for(const key of hand.children){
-   const copy=key.cloneNode(true),object=copy.querySelector('object'),values=weaponTransform(Object.fromEntries([...object.attributes].map(a=>[a.name,a.value])));
-   for(const [name,value] of Object.entries(values))object.setAttribute(name,String(value));weapon.append(copy);
-  }
-  for(const key of animation.querySelector('mainline').children){
-   const refs=[...key.querySelectorAll('object_ref')],h=refs.find(r=>r.getAttribute('timeline')===hand.getAttribute('id')),w=refs.find(r=>r.getAttribute('timeline')===weapon.getAttribute('id'));
-   w.setAttribute('key',h.getAttribute('key'));
-  }
- }
+ const doc=new DOMParser().parseFromString(DATA.scml,'application/xml');
+ doc.querySelector('entity').setAttribute('name','CustomAvatar');
  return new XMLSerializer().serializeToString(doc);
 }
 function tintedEffect(){
@@ -61,10 +35,10 @@ function refreshTextures(){
  images['1']=registry[['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'][state.head]];
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
-  else if(state.face<4)images[id]=registry['faces/'+['focused','adventurer','veteran'][state.face-1]+'.png'];
+  else if(state.face<4)images[id]=registry['faces/'+['focused','adventurer','veteran'][state.face-1]+'/'+DATA.rig.files[id].name];
   else images[id]=registry['faces/ranger/'+DATA.rig.files[id].name];
  }
- if(state.outfit===0)images['0']=registry['outfits/basic/Body.png'];
+ if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
  images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png'][state.accessory]]:makeCanvas(400,128);
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
@@ -81,7 +55,7 @@ function update(){
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
 }
-function change(id,delta){const def=definitions.find(d=>d.id===id);state[id]=(state[id]+delta+def.options.length)%def.options.length;if(id==='effect'){select.value='Slashing';time=200;setView('assembled')}update()}
+function change(id,delta){const def=definitions.find(d=>d.id===id);state[id]=(state[id]+delta+def.options.length)%def.options.length;if(id==='effect'||id==='accessory'){select.value='Slashing';time=200;setView('assembled')}update()}
 function buildControls(){
  for(const def of definitions){
   const section=document.createElement('section');section.className='option';section.dataset.option=def.id;
@@ -139,7 +113,7 @@ async function exportSprites(){
     status.textContent=`Exportando ${++done}/207 · ${animationLabels[name]||name}`;
    }
   }
-  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nCabeça/cabelo/capuz são variantes de Head.png; o rosto é independente.\nOs rostos Concentrado, Aventureiro e Veterano são poses faciais estáticas; Rosto Ranger preserva as três expressões originais.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\n');
+  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nCabeça/cabelo/capuz são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\n');
   download(zip.finish(),'CustomAvatar-sprites.zip');status.textContent='Pronto: 13 peças e 207 frames exportados.';
  }catch(error){status.textContent=error.message}finally{setBusy(false)}
 }
@@ -147,7 +121,7 @@ document.getElementById('assembledView').onclick=()=>setView('assembled');docume
 document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação')};
 select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0};select.value='Idle';time=0;status.textContent='Mago montado. Túnica e membros seguem o mesmo conjunto.';update()};
+document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
 document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:1,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
 document.getElementById('importConfig').onclick=()=>document.getElementById('configFile').click();

@@ -18,13 +18,13 @@ alteram independentemente cabeça/cabelo/capuz, rosto, corpo/roupa, acessório e
 
 O ZIP exportado contém 13 PNGs de peças, `Animations.scml`, 207 frames nas mesmas
 17 pastas de animação do Forest Ranger, configuração e instruções. Os pivôs, os
-ossos e os movimentos partem do SCML enviado pelo usuário. O acessório acompanha
-a mão também durante a animação e na montagem exportada.
+ossos e os movimentos partem do SCML enviado pelo usuário. A arma preserva exatamente a hierarquia, os pivôs, a visibilidade e os keyframes
+do original, inclusive o arco completo nos ataques em pé, correndo e no ar.
+Cajado e clava ocupam o mesmo alcance da textura original.
 
 As opções de cabelo e capuz substituem a peça `Head.png`, como no padrão do pacote
-original; o rosto é uma peça independente. Os rostos novos Concentrado, Aventureiro
-e Veterano são poses faciais estáticas. A opção Rosto Ranger mantém as três
-expressões originais, incluindo piscar e dano.
+original; o rosto é uma peça independente. Todos os rostos com feições mantêm as três expressões originais, incluindo piscar
+e dano, com o mesmo registro entre elas.
 
 As escolhas ficam salvas localmente quando o navegador permite. Use Salvar escolhas
 e Carregar escolhas salvas para transferir a configuração entre navegadores.
@@ -34,7 +34,8 @@ e Carregar escolhas salvas para transferir a configuração entre navegadores.
 - `assets/original/`: as peças e o SCML do `Forest_Ranger_3.zip` fornecido.
 - `assets/heads/`, `assets/faces/`, `assets/outfits/basic/`: novas texturas geradas
   e registradas para a montagem.
-- `assets/outfits/mage/`: túnica, mangas, mãos e botas geradas como um conjunto e registradas nos pivôs originais.
+- `assets/outfits/basic/` e `assets/outfits/mage/`: variantes de cor das sete peças originais; silhuetas, luvas, encaixes e alfa preservados.
+- `prepare_native.py`: prepara paletas, expressões e alcance dos acessórios. O contorno comum é `#1b1a18`.
 - `assets/accessories/`: cajado simples do mesmo conjunto, clava e bastão Ranger.
 - `sources/`: atlas gerados de cabeças, peças do mago e rostos, antes do corte e registro.
 - `rig.json` e `catalog.json`: dados e imagens para o HTML independente.
