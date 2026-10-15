@@ -12,7 +12,7 @@ def main():
    # Row bands include the whole mouth, unlike equal grid slices.
    top,bottom=[(100,380),(410,670),(700,970)][row]
    cell=atlas.crop((col*512,top,(col+1)*512,bottom));d=np.array(cell);d[:,:,3]=np.where(d[:,:,3]>160,255,0);cell=Image.fromarray(d);box=cell.getchannel('A').getbbox()
-   cell=cell.crop(box).resize((204,129),Image.Resampling.LANCZOS);out=Image.new('RGBA',(320,240));out.paste(cell,(60,65))
+   cell=cell.crop(box).resize((204,129),Image.Resampling.LANCZOS);out=Image.new('RGBA',(320,240));out.paste(cell,(60,53))
    d=np.array(out);r,g,b=d[:,:,:3].astype(float).transpose(2,0,1);opaque=d[:,:,3]>0
    ink=(np.maximum.reduce([r,g,b])<45)&opaque
    d[ink,:3]=[27,26,24]
@@ -31,7 +31,7 @@ def main():
     area=np.count_nonzero(labels[sl]==i+1)
     if area<4:continue
     region=labels==i+1
-    target=brows if sl[0].start<100 else eyes
+    target=brows if sl[0].start<88 else eyes
     target|=region
    # Uniform base colors; retain a neutral dark shadow without source grain.
    for material,region,base in [('brows',brows,[(70,73,76),(110,170,211),(176,134,45)][col]),('eyes',eyes,[(96,112,49),(52,119,160),(57,103,131)][col])]:

@@ -35,7 +35,7 @@ def main():
                     rgb[brows]=np.clip((r[brows]/165)[:,None]*np.array([179,177,163]),0,255)
             d[:,:,:3]=rgb.astype('uint8');im=Image.fromarray(d)
             sx=204/258;tx=60-22*sx
-            im=im.transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1,-4),Image.Resampling.BICUBIC)
+            im=im.transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1,8),Image.Resampling.BICUBIC)
             outline(im).save(dest/name)
     # Match native texture bounds, so native pivots give every weapon full reach.
     for name in ['Staff.png','Club.png']:
