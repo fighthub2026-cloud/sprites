@@ -1,13 +1,14 @@
 const DATA=JSON.parse(document.getElementById('catalog').textContent);
 const canvas=document.getElementById('preview'),status=document.getElementById('status');
-const defaults={head:0,face:0,outfit:0,accessory:0,effect:0};
+const defaultColors={skin:'#dbbe9a',hair:'#40505a',brows:'#734b2e',eyes:'#307d60'};
+const defaults={head:0,face:0,outfit:0,accessory:0,effect:0,colors:{...defaultColors}};
 let state={...defaults},view='assembled',playing=true,time=0,last=performance.now(),busy=false,cancelled=false;
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
  {id:'head',label:'Cabelo / capuz',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Capuz','Tecido azul-escuro.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
  {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Concentrado','Olhos verdes e sobrancelhas castanhas.'],['Aventureiro','Olhos azuis e expressão confiante.'],['Veterano','Olhos âmbar e sobrancelhas prateadas.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.']]},
  {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
@@ -30,27 +31,58 @@ function tintedEffect(){
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const lum=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,white=Math.max(0,(lum-.72)/.28)*.65;for(let k=0;k<3;k++)d[i+k]=Math.round(rgb[k]*(.6+.4*lum)*(1-white)+255*white)}
  ctx.putImageData(image,0,0);return c;
 }
+const colorCache=new Map();
+function colored(key,materials){
+ const cacheKey=key+JSON.stringify(materials);if(colorCache.has(cacheKey))return colorCache.get(cacheKey);
+ const source=registry[key],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
+ const image=ctx.getImageData(0,0,c.width,c.height),d=image.data;
+ for(const [material,hex] of Object.entries(materials)){
+  const mask=registry['masks/'+key.replace(/\.png$/, '-'+material+'.png')];if(!mask)continue;
+  const mc=makeCanvas(c.width,c.height),mx=mc.getContext('2d');mx.drawImage(mask,0,0);const m=mx.getImageData(0,0,c.width,c.height).data;
+  const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+  for(let i=0;i<d.length;i+=4){if(!m[i+3])continue;const shade=m[i]/128;
+   // Neutral gray shadows multiply the base; translucent white highlights screen it.
+   for(let k=0;k<3;k++)d[i+k]=Math.round(shade<=1?rgb[k]*shade:rgb[k]+(255-rgb[k])*(m[i]-128)/127);
+  }
+ }
+ ctx.putImageData(image,0,0);colorCache.set(cacheKey,c);if(colorCache.size>160)colorCache.delete(colorCache.keys().next().value);return c;
+}
+function applyLook(index){
+ const looks=[{head:1,face:1,outfit:3,colors:{skin:'#d4b890',hair:'#414b4d',brows:'#333332',eyes:'#878559'}},{head:4,face:2,outfit:4,colors:{skin:'#d9bd9c',hair:'#7bb7de',brows:'#6689a0',eyes:'#809dba'}},{head:5,face:2,outfit:5,colors:{skin:'#e5c9a6',hair:'#edc34c',brows:'#a48639',eyes:'#869bb1'}}];
+ state={...state,...structuredClone(looks[index])};update();
+}
+function buildColorControls(){
+ const section=document.getElementById('colors');
+ for(const [key,label]of Object.entries({skin:'Pele',hair:'Cabelo',brows:'Sobrancelhas',eyes:'Olhos'})){
+  const row=document.createElement('label');row.className='colorControl';const text=document.createElement('span');text.textContent=label;
+  const input=document.createElement('input');input.type='color';input.dataset.material=key;input.setAttribute('aria-label','Cor: '+label);input.value=state.colors[key];
+  const output=document.createElement('output');output.textContent=input.value;
+  input.oninput=()=>{state.colors={...state.colors,[key]:input.value};update()};row.append(text,output,input);section.append(row);
+ }
+}
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];
- images['1']=registry[['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'][state.head]];
+ images['1']=colored(['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'][state.head],{skin:state.colors.skin,hair:state.colors.hair});
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
-  else if(state.face<4)images[id]=registry['faces/'+['focused','adventurer','veteran'][state.face-1]+'/'+DATA.rig.files[id].name];
-  else images[id]=registry['faces/ranger/'+DATA.rig.files[id].name];
+  else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});
  }
  if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
+ if(state.outfit>=3){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
  images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png'][state.accessory]]:makeCanvas(400,128);
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
 }
 function validState(value){
  if(!value||typeof value!=='object')throw Error('Arquivo de escolhas inválido.');
  for(const def of definitions)if(!Number.isInteger(value[def.id])||value[def.id]<0||value[def.id]>=def.options.length)throw Error('Escolha inválida: '+def.label);
- return Object.fromEntries(definitions.map(def=>[def.id,value[def.id]]));
+ const colors={...defaultColors,...value.colors};for(const key of Object.keys(defaultColors))if(!/^#[0-9a-f]{6}$/i.test(colors[key]))throw Error('Cor inválida: '+key);
+ return {...Object.fromEntries(definitions.map(def=>[def.id,value[def.id]])),colors};
 }
 function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify(state))}catch{}}
 function update(){
  refreshTextures();persist();
+ document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
  for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
@@ -101,7 +133,7 @@ async function exportSprites(){
  if(busy)return;setBusy(true);cancelled=false;
  try{
   const zip=new ZipStore(),output=makeCanvas(900,900);let done=0;
-  await zip.add('CustomAvatar/config.json',JSON.stringify({version:1,state},null,2));
+  await zip.add('CustomAvatar/config.json',JSON.stringify({version:2,state},null,2));
   await zip.add('CustomAvatar/PNG/Vector Parts/Animations.scml',selectedSCML());
   for(const [id,file] of Object.entries(DATA.rig.files)){const texture=makeCanvas(Number(file.width),Number(file.height));texture.getContext('2d').drawImage(player.images[id],0,0,texture.width,texture.height);await zip.add('CustomAvatar/PNG/Vector Parts/'+file.name,await blobOf(texture))}
   for(const [name,count] of Object.entries(DATA.rig.frameCounts)){
@@ -121,9 +153,9 @@ document.getElementById('assembledView').onclick=()=>setView('assembled');docume
 document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação')};
 select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
+document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
-document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:1,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
+document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:2,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
 document.getElementById('importConfig').onclick=()=>document.getElementById('configFile').click();
 document.getElementById('configFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const config=JSON.parse(await file.text());state=validState(config.state||config);time=0;update();status.textContent='Escolhas carregadas.'}catch(error){status.textContent='Não foi possível carregar: '+error.message}finally{e.target.value=''}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
@@ -131,7 +163,7 @@ async function init(){
  try{
   await Promise.all(Object.entries(DATA.images).map(async([key,url])=>{const image=new Image();image.src=url;await image.decode();registry[key]=image}));
   try{const saved=localStorage.getItem('chibi-creator-v1');if(saved)state=validState(JSON.parse(saved))}catch{}
-  buildControls();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
+  buildControls();buildColorControls();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
  }catch(error){document.getElementById('loading').textContent='Não foi possível carregar as peças: '+error.message}
 }
 init();
