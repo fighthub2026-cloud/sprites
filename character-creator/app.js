@@ -88,10 +88,45 @@ function update(){
  refreshTextures();persist();
  document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
  for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
+ renderVariants();
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
 }
 function change(id,delta){const def=definitions.find(d=>d.id===id);state[id]=(state[id]+delta+def.options.length)%def.options.length;if(id==='effect'||id==='accessory'){select.value='Slashing';time=200;setView('assembled')}update()}
+let activeCategory='head';
+function activateEditor(name){
+ document.querySelectorAll('[data-editor-tab]').forEach(button=>{const active=button.dataset.editorTab===name;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;document.getElementById('panel-'+button.dataset.editorTab).hidden=!active});
+}
+function activateCategory(name){
+ activeCategory=name;
+ for(const def of definitions){const active=def.id===name,button=document.querySelector('[data-category="'+def.id+'"]');button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;document.querySelector('[data-option="'+def.id+'"]').hidden=!active}
+ renderVariants();
+}
+function renderVariants(){
+ const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();const def=definitions.find(d=>d.id===activeCategory);
+ const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
+ def.options.forEach(([label],index)=>{const button=document.createElement('button');button.className='variant';button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(state[def.id]===index));
+  const file=files[def.id]?.[index];
+  if(file){const image=new Image();image.src=DATA.images[file];image.alt='';button.append(image)}else{const icon=document.createElement('span');icon.className=def.id==='effect'?'variantColor':'variantSymbol';if(def.id==='effect')icon.style.setProperty('--swatch',effects[index][1]);else icon.textContent=def.id==='face'?'◌':'—';button.append(icon)}
+  const text=document.createElement('span');text.textContent=label;button.append(text);button.onclick=()=>change(def.id,index-state[def.id]);grid.append(button);
+ });
+}
+function setupEditorTabs(){
+ const icons={head:'♟',face:'◉',outfit:'♜',accessory:'⚔',effect:'✧'},labels={head:'Cabelo',face:'Rosto',outfit:'Traje',accessory:'Arma',effect:'Efeito'};
+ for(const def of definitions){
+  const button=document.createElement('button');button.dataset.category=def.id;button.id='category-'+def.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','option-'+def.id);button.setAttribute('aria-label',def.label);
+  const icon=document.createElement('span');icon.className='categoryIcon';icon.setAttribute('aria-hidden','true');icon.textContent=icons[def.id];const text=document.createElement('span');text.textContent=labels[def.id];button.append(icon,text);button.onclick=()=>activateCategory(def.id);document.getElementById('categoryTabs').append(button);
+  const section=document.querySelector('[data-option="'+def.id+'"]');section.id='option-'+def.id;section.setAttribute('role','tabpanel');section.setAttribute('aria-labelledby',button.id);
+ }
+ document.querySelectorAll('[data-editor-tab]').forEach(button=>button.onclick=()=>activateEditor(button.dataset.editorTab));
+ for(const list of document.querySelectorAll('[role="tablist"]'))list.addEventListener('keydown',event=>{
+  const tabs=[...list.querySelectorAll('[role="tab"]')],index=tabs.indexOf(document.activeElement);if(index<0)return;let next;
+  if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index-1+tabs.length)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;
+  event.preventDefault();tabs[next].click();tabs[next].focus();
+ });
+ activateCategory('head');
+}
+
 function buildControls(){
  for(const def of definitions){
   const section=document.createElement('section');section.className='option';section.dataset.option=def.id;
@@ -167,7 +202,7 @@ async function init(){
  try{
   await Promise.all(Object.entries(DATA.images).map(async([key,url])=>{const image=new Image();image.src=url;await image.decode();registry[key]=image}));
   try{const saved=localStorage.getItem('chibi-creator-v1');if(saved)state=validState(JSON.parse(saved))}catch{}
-  buildControls();buildColorControls();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
+  buildControls();buildColorControls();setupEditorTabs();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
  }catch(error){document.getElementById('loading').textContent='Não foi possível carregar as peças: '+error.message}
 }
 init();

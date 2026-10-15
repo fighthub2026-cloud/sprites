@@ -57,3 +57,18 @@ Para reconstruir as texturas refinadas a partir dos atlas, execute `python chara
 Para preparar os novos trajes e máscaras: `python character-creator/prepare_outfits.py` e `python character-creator/prepare_materials.py`, antes de `build.py`. O ZIP exporta as cores aplicadas e o JSON inclui a paleta; configurações antigas continuam aceitas.
 
 As máscaras de cabelo separam o material pelos tons de origem e sua mistura com o contorno, incluindo mechas escuras. O preenchimento usa tons planos neutros; nas bordas, a nova cor é combinada com o contorno, sem resíduos da cor anterior. Verificação: `python -m unittest discover -s character-creator/tests -v`. A preparação das máscaras requer também SciPy.
+
+
+## Interface em uma tela
+
+A oficina ocupa a altura disponível (`100dvh`) em computador e celular, inclusive
+na horizontal. As abas Aparência, Cores e Arquivos organizam os controles sem
+rolagem. Em Aparência, escolha uma categoria (cabelo, rosto, traje, arma ou efeito)
+e selecione a miniatura ou use as setas. PNG e ZIP ficam sempre disponíveis na
+base do painel. As abas também aceitam setas do teclado, Home e End.
+
+A interface usa cenário e botões em CSS, sem fontes ou imagens remotas. Todos os
+recursos anteriores continuam no HTML independente. Para verificar o encaixe em
+11 tamanhos de tela, navegação e exportação PNG, execute
+`python character-creator/tests/check_layout.py` (Playwright e Chromium em
+`/usr/bin/chromium`). O teste inicia e encerra seu próprio servidor local.
