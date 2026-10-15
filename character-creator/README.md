@@ -85,3 +85,10 @@ máscaras independentes de sobrancelhas e íris, preservando a parte branca dos 
 da lista de cabelos; escolhas antigas são migradas preservando azul e loiro.
 
 As grades de miniaturas foram removidas de todas as categorias. A seleção das peças permanece nas setas de cada categoria.
+
+A pele da cabeça e das mãos descobertas usa o mesmo tratamento plano do cabelo:
+base, sombra e brilho neutros, com cobertura parcial apenas junto ao contorno.
+As máscaras de cabelo e pele são separadas e não se sobrepõem. O processamento
+não reaproveita a cor original nas bordas nem reproduz seu ruído no preenchimento.
+Os testes `test_skin_masks.py` verificam cobertura, separação dos materiais e
+preservação dos contornos.
