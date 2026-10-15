@@ -1,6 +1,7 @@
 """Build explicit recoloring masks; outlines and other materials stay untouched."""
 from pathlib import Path
 import numpy as np
+from scipy.ndimage import distance_transform_edt
 from PIL import Image
 ROOT=Path(__file__).resolve().parent
 
@@ -16,12 +17,46 @@ def mask(path,material,choose):
  out=np.zeros_like(d);out[:,:,:3]=np.clip(shade,0,255).astype('uint8')[:,:,None];out[:,:,3]=np.where(selected,d[:,:,3],0)
  dest=ROOT/'assets/masks'/path.relative_to(ROOT/'assets');dest=dest.with_name(dest.stem+'-'+material+'.png');dest.parent.mkdir(exist_ok=True,parents=True);Image.fromarray(out).save(dest)
 
+def hair_mask(path):
+ """Segment material from outline blends, then flatten source texture into tones.
+
+RGB brightness cutoffs miss dark locks and turn tiny source RGB variations into
+visible mottling. Fit each pixel to material-to-outline rays instead, retaining
+fractional coverage only at their borders.
+ """
+ d=np.array(Image.open(path).convert('RGBA'));rgb=d[:,:,:3].astype(float)
+ ink=np.array([27.,26.,24.]);v=rgb-ink
+ palettes={
+  'blond':[[250,197,79],[195,151,57],[255,217,111]],
+  'blue':[[125,175,226],[86,131,170],[150,199,236]],
+  'silver':[[208,210,215],[150,152,157],[232,234,238]],
+  'short':[[60,61,64],[51,51,52],[83,87,90]]}
+ hair=np.array(palettes[path.stem],dtype=float)
+ skin=np.array([[238,200,159],[192,161,125],[218,182,144]],dtype=float)
+ candidates=np.concatenate([hair,skin]);directions=candidates-ink
+ t=np.clip(np.einsum('hwc,nc->hwn',v,directions)/np.sum(directions**2,axis=1),0,1)
+ error=np.sum((v[:,:,None,:]-t[:,:,:,None]*directions[None,None,:,:])**2,axis=3)
+ nearest=error.argmin(2);coverage=np.take_along_axis(t,nearest[:,:,None],axis=2)[:,:,0]
+ selected=(nearest<3)&(d[:,:,3]>0)&(np.max(abs(v),axis=2)>1)
+ outline=np.max(abs(v),axis=2)<=1
+ interior=distance_transform_edt(~outline)>1.5
+ coverage=np.where(interior,1,coverage)
+ # Recover the unblended material luminance before assigning a flat shade.
+ lum=np.einsum('hwc,c->hw',rgb,np.array([.2126,.7152,.0722]))
+ ink_lum=float(ink @ np.array([.2126,.7152,.0722]));base=float(hair[0] @ np.array([.2126,.7152,.0722]))
+ recovered=ink_lum+(lum-ink_lum)/np.maximum(coverage,.01)
+ ratio=recovered/base
+ shade=np.where(ratio<.88,100,np.where(ratio>1.10,150,128))
+ out=np.zeros_like(d);out[:,:,:3]=shade[:,:,None]
+ out[:,:,3]=np.where(selected,np.rint(coverage*255),0).astype('uint8')
+ dest=ROOT/'assets/masks/heads'/(path.stem+'-hair.png');dest.parent.mkdir(exist_ok=True,parents=True);Image.fromarray(out).save(dest)
+
 def main():
  skin=lambda r,g,b:(r>95)&(r>g*1.06)&(g>b*1.09)&(b>g*.53)
  for p in (ROOT/'assets/heads').glob('*.png'):
   mask(p,'skin',skin)
   if p.stem!='bald' and p.stem!='hood':
-   mask(p,'hair',lambda r,g,b:~skin(r,g,b)&(np.maximum.reduce([r,g,b])>43))
+   hair_mask(p)
  for folder in ['focused','adventurer','veteran','ranger']:
   for p in (ROOT/'assets/faces'/folder).glob('*.png'):
    mask(p,'eyes',lambda r,g,b:(g>r*1.4)&(g>b*1.1)&(g>35) if folder in ['focused','ranger'] else ((b>r*1.4)&(b>g*1.15)&(b>45) if folder=='adventurer' else (r>g*1.25)&(g>b*1.4)&(r>45)&(r<160)))

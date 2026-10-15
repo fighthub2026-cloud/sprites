@@ -42,7 +42,11 @@ function colored(key,materials){
   const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
   for(let i=0;i<d.length;i+=4){if(!m[i+3])continue;const shade=m[i]/128;
    // Neutral gray shadows multiply the base; translucent white highlights screen it.
-   for(let k=0;k<3;k++)d[i+k]=Math.round(shade<=1?rgb[k]*shade:rgb[k]+(255-rgb[k])*(m[i]-128)/127);
+   for(let k=0;k<3;k++){const target=shade<=1?rgb[k]*shade:rgb[k]+(255-rgb[k])*(m[i]-128)/127;
+    const coverage=material==='hair'?m[i+3]/255:1;
+    const under=material==='hair'?[27,26,24][k]:d[i+k];
+    d[i+k]=Math.round(under*(1-coverage)+target*coverage);
+   }
   }
  }
  ctx.putImageData(image,0,0);colorCache.set(cacheKey,c);if(colorCache.size>160)colorCache.delete(colorCache.keys().next().value);return c;
