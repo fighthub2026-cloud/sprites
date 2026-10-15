@@ -19,14 +19,15 @@ with sync_playwright() as p:
    page.locator('#tab-'+tab).click()
    checks=page.evaluate('''()=>{
    const hidden=e=>e.closest('[hidden]')!==null;
-   const bad=[...document.querySelectorAll('button,input:not([type=file]),select,.variant,.colorControl')].filter(e=>!hidden(e)&&e.getBoundingClientRect().width>0).filter(e=>{const r=e.getBoundingClientRect();if(r.left<0||r.top<0||r.right>innerWidth+1||r.bottom>innerHeight+1)return true;const panel=e.closest('.editorBody');if(panel){const p=panel.getBoundingClientRect();if(r.bottom>p.bottom+1)return true}return false}).map(e=>e.id||e.className);
+   const bad=[...document.querySelectorAll('button,input:not([type=file]),select,.colorControl')].filter(e=>!hidden(e)&&e.getBoundingClientRect().width>0).filter(e=>{const r=e.getBoundingClientRect();if(r.left<0||r.top<0||r.right>innerWidth+1||r.bottom>innerHeight+1)return true;const panel=e.closest('.editorBody');if(panel){const p=panel.getBoundingClientRect();if(r.bottom>p.bottom+1)return true}return false}).map(e=>e.id||e.className);
    return {pageFits:document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth,bad};}''')
    assert checks['pageFits'] and not checks['bad'],(w,h,tab,checks)
   page.locator('#tab-appearance').click()
   for cat in ['head','face','outfit','accessory','effect']:
-   page.locator('[data-category='+cat+']').click();(page.locator('[data-option=effect] .arrow').last if cat=='effect' else page.locator('.variant').last).click();assert page.evaluate('activeCategory')==cat
+   page.locator('[data-category='+cat+']').click();page.locator('[data-option='+cat+'] .arrow').last.click();assert page.evaluate('activeCategory')==cat
   page.evaluate('applyLook(1);activateCategory("head")');page.screenshot(path=str(out/f'ui-{w}x{h}.png'))
   print(w,h,'2 abas, 5 categorias e controles sem cortes OK')
+ assert page.locator('#variants,.variant').count()==0
  # Download and keyboard navigation still work with the tab panels.
  page.locator('#tab-appearance').focus();page.keyboard.press('ArrowRight');assert page.locator('#tab-colors').get_attribute('aria-selected')=='true'
  with page.expect_download() as download:page.locator('#exportPNG').click()

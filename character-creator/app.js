@@ -88,7 +88,7 @@ function update(){
  refreshTextures();persist();
  document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
  for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
- renderVariants();renderExpressionChoices();
+ renderExpressionChoices();
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
 }
@@ -100,7 +100,7 @@ function activateEditor(name){
 function activateCategory(name){
  activeCategory=name;
  for(const def of definitions){const active=def.id===name,button=document.querySelector('[data-category="'+def.id+'"]');button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;document.querySelector('[data-option="'+def.id+'"]').hidden=!active}
- renderVariants();
+ 
 }
 function previewExpression(index){
  select.value=['Idle','Idle Blinking','Hurt'][index];time=[0,500,0][index];
@@ -112,15 +112,6 @@ function renderExpressionChoices(){
   const button=document.createElement('button');button.className='expressionChoice';button.setAttribute('aria-label','Ver expressão: '+name);button.setAttribute('aria-pressed',String(!playing&&select.value===['Idle','Idle Blinking','Hurt'][index]));
   const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+file];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
  }
-}
-function renderVariants(){
- const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();grid.hidden=activeCategory==='effect';if(grid.hidden)return;const def=definitions.find(d=>d.id===activeCategory);
- const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
- def.options.forEach(([label],index)=>{const button=document.createElement('button');button.className='variant';button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(state[def.id]===index));
-  const file=files[def.id]?.[index];
-  if(file){const image=new Image();image.src=DATA.images[file];image.alt='';button.append(image)}else{const icon=document.createElement('span');icon.className=def.id==='effect'?'variantColor':'variantSymbol';if(def.id==='effect')icon.style.setProperty('--swatch',effects[index][1]);else icon.textContent=def.id==='face'?'◌':'—';button.append(icon)}
-  const text=document.createElement('span');text.textContent=label;button.append(text);button.onclick=()=>change(def.id,index-state[def.id]);grid.append(button);
- });
 }
 function setupEditorTabs(){
  const icons={head:'♟',face:'◉',outfit:'♜',accessory:'⚔',effect:'✧'},labels={head:'Cabelo',face:'Rosto',outfit:'Traje',accessory:'Arma',effect:'Efeito'};

@@ -64,7 +64,7 @@ As máscaras de cabelo separam o material pelos tons de origem e sua mistura com
 A oficina ocupa a altura disponível (`100dvh`) em computador e celular, inclusive
 na horizontal. As abas Aparência e Cores organizam os controles sem
 rolagem. Em Aparência, escolha uma categoria (cabelo, rosto, traje, arma ou efeito)
-e selecione a miniatura ou use as setas. PNG e ZIP ficam sempre disponíveis na
+e use as setas para escolher a peça. PNG e ZIP ficam sempre disponíveis na
 base do painel. As abas também aceitam setas do teclado, Home e End.
 
 A interface usa cenário e botões em CSS, sem fontes ou imagens remotas. Todos os
@@ -83,3 +83,5 @@ exporta todas as expressões nos momentos definidos pelo rig.
 máscaras independentes de sobrancelhas e íris, preservando a parte branca dos olhos.
 `prepare_materials.py` também executa essa preparação ao final. O capuz foi retirado
 da lista de cabelos; escolhas antigas são migradas preservando azul e loiro.
+
+As grades de miniaturas foram removidas de todas as categorias. A seleção das peças permanece nas setas de cada categoria.
