@@ -24,14 +24,14 @@
 </section>
 <section class="customize" aria-label="Personalizar personagem">
 <div class="panelHeader"><span class="eyebrow">CADA DETALHE É SEU</span><h2>Monte sua aventura</h2></div>
-<div class="editorTabs" role="tablist" aria-label="Editor"><button id="tab-appearance" role="tab" aria-selected="true" aria-controls="panel-appearance" data-editor-tab="appearance">✦ Aparência</button><button id="tab-colors" role="tab" aria-selected="false" aria-controls="panel-colors" data-editor-tab="colors" tabindex="-1">◈ Cores</button><button id="tab-files" role="tab" aria-selected="false" aria-controls="panel-files" data-editor-tab="files" tabindex="-1">▣ Arquivos</button></div>
+<div class="editorTabs" role="tablist" aria-label="Editor"><button id="tab-appearance" role="tab" aria-selected="true" aria-controls="panel-appearance" data-editor-tab="appearance">✦ Aparência</button><button id="tab-colors" role="tab" aria-selected="false" aria-controls="panel-colors" data-editor-tab="colors" tabindex="-1">◈ Cores</button></div>
 <div class="editorBody">
 <section id="panel-appearance" class="editorPanel" role="tabpanel" aria-labelledby="tab-appearance">
 <div class="looks" aria-label="Combinações prontas"><span>Inspirações</span><button class="look" onclick="applyLook(0)">Couro</button><button class="look" onclick="applyLook(1)">Azul</button><button class="look" onclick="applyLook(2)">Loiro</button><button id="example" class="look">Mago</button></div>
 <div id="categoryTabs" class="categoryTabs" role="tablist" aria-label="Peça do personagem"></div><div id="options"></div><div id="variants" class="variants" aria-label="Variações da peça"></div>
 </section>
 <section id="panel-colors" class="editorPanel palette" role="tabpanel" aria-labelledby="tab-colors" hidden><div class="sectionIntro"><h3>Uma paleta só sua</h3><p>Escolha uma cor para cada detalhe.</p></div><div id="colors"></div><div class="tip"><span aria-hidden="true">✧</span><p>Sombras e brilhos acompanham as cores. A pele muda no rosto e nas mãos descobertas; as luvas mantêm a cor do traje.</p></div></section>
-<section id="panel-files" class="editorPanel filesPanel" role="tabpanel" aria-labelledby="tab-files" hidden><div class="sectionIntro"><h3>Pronto para uma aventura?</h3><p>Leve seu personagem para o próximo projeto.</p></div><div class="exportStats"><div><strong>13</strong><span>peças</span></div><div><strong>17</strong><span>animações</span></div><div><strong>207</strong><span>frames</span></div></div><div class="configActions"><button id="exportConfig" class="secondary">↓ Salvar escolhas</button><button id="importConfig" class="secondary">↑ Carregar escolhas</button></div><input id="configFile" type="file" accept=".json,application/json" hidden><p class="fileNote">PNG transparente de 900 × 900. O pacote ZIP inclui peças, montagem SCML e todas as animações com suas cores.</p></section>
+
 </div>
 <div class="actions"><button id="exportPNG" class="secondary">↓ Baixar PNG</button><button id="exportZIP" class="primary">Exportar herói <span aria-hidden="true">✦</span></button></div>
 </section></div>
@@ -224,7 +224,7 @@ function activateCategory(name){
  renderVariants();
 }
 function renderVariants(){
- const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();const def=definitions.find(d=>d.id===activeCategory);
+ const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();grid.hidden=activeCategory==='effect';if(grid.hidden)return;const def=definitions.find(d=>d.id===activeCategory);
  const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
  def.options.forEach(([label],index)=>{const button=document.createElement('button');button.className='variant';button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(state[def.id]===index));
   const file=files[def.id]?.[index];
@@ -315,9 +315,6 @@ select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
 document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
-document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:2,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
-document.getElementById('importConfig').onclick=()=>document.getElementById('configFile').click();
-document.getElementById('configFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const config=JSON.parse(await file.text());state=validState(config.state||config);time=0;update();status.textContent='Escolhas carregadas.'}catch(error){status.textContent='Não foi possível carregar: '+error.message}finally{e.target.value=''}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
 async function init(){
  try{

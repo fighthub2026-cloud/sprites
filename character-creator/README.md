@@ -29,8 +29,8 @@ As opções de cabelo e capuz substituem a peça `Head.png`, como no padrão do 
 original; o rosto é uma peça independente. Todos os rostos com feições mantêm as três expressões originais, incluindo piscar
 e dano, com o mesmo registro entre elas.
 
-As escolhas ficam salvas localmente quando o navegador permite. Use Salvar escolhas
-e Carregar escolhas salvas para transferir a configuração entre navegadores.
+As escolhas ficam salvas localmente quando o navegador permite. O ZIP inclui
+a configuração JSON com a paleta escolhida.
 
 ## Fontes e reconstrução
 
@@ -54,7 +54,7 @@ licença do pacote original: https://craftpix.net/file-licenses/.
 
 Para reconstruir as texturas refinadas a partir dos atlas, execute `python character-creator/pack_refinement.py` antes de `build.py`. Esse passo de preparação requer Pillow, NumPy, SciPy e ImageMagick; a página pronta não precisa dessas ferramentas.
 
-Para preparar os novos trajes e máscaras: `python character-creator/prepare_outfits.py` e `python character-creator/prepare_materials.py`, antes de `build.py`. O ZIP exporta as cores aplicadas e o JSON inclui a paleta; configurações antigas continuam aceitas.
+Para preparar os novos trajes e máscaras: `python character-creator/prepare_outfits.py` e `python character-creator/prepare_materials.py`, antes de `build.py`. O ZIP exporta as cores aplicadas e o JSON inclui a paleta; escolhas já salvas no navegador continuam aceitas.
 
 As máscaras de cabelo separam o material pelos tons de origem e sua mistura com o contorno, incluindo mechas escuras. O preenchimento usa tons planos neutros; nas bordas, a nova cor é combinada com o contorno, sem resíduos da cor anterior. Verificação: `python -m unittest discover -s character-creator/tests -v`. A preparação das máscaras requer também SciPy.
 
@@ -62,7 +62,7 @@ As máscaras de cabelo separam o material pelos tons de origem e sua mistura com
 ## Interface em uma tela
 
 A oficina ocupa a altura disponível (`100dvh`) em computador e celular, inclusive
-na horizontal. As abas Aparência, Cores e Arquivos organizam os controles sem
+na horizontal. As abas Aparência e Cores organizam os controles sem
 rolagem. Em Aparência, escolha uma categoria (cabelo, rosto, traje, arma ou efeito)
 e selecione a miniatura ou use as setas. PNG e ZIP ficam sempre disponíveis na
 base do painel. As abas também aceitam setas do teclado, Home e End.
@@ -72,3 +72,5 @@ recursos anteriores continuam no HTML independente. Para verificar o encaixe em
 11 tamanhos de tela, navegação e exportação PNG, execute
 `python character-creator/tests/check_layout.py` (Playwright e Chromium em
 `/usr/bin/chromium`). O teste inicia e encerra seu próprio servidor local.
+
+A aba Arquivos foi removida. As escolhas continuam salvas automaticamente no navegador e incluídas no ZIP. O efeito pode ser escolhido pelas setas ou amostras de cor, sem uma segunda grade de botões.

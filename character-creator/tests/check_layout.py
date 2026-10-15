@@ -15,7 +15,7 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  for w,h in [(1920,1080),(1440,900),(1280,720),(1024,600),(390,844),(375,667),(360,640),(320,568),(844,390),(667,375),(568,320)]:
   page.set_viewport_size({'width':w,'height':h});page.goto(f'http://127.0.0.1:{server.server_port}/character-creator/index.html');page.wait_for_function('window.creatorReady');page.evaluate('playing=false;applyLook(1)')
-  for tab in ['appearance','colors','files']:
+  for tab in ['appearance','colors']:
    page.locator('#tab-'+tab).click()
    checks=page.evaluate('''()=>{
    const hidden=e=>e.closest('[hidden]')!==null;
@@ -24,9 +24,9 @@ with sync_playwright() as p:
    assert checks['pageFits'] and not checks['bad'],(w,h,tab,checks)
   page.locator('#tab-appearance').click()
   for cat in ['head','face','outfit','accessory','effect']:
-   page.locator('[data-category='+cat+']').click();page.locator('.variant').last.click();assert page.evaluate('activeCategory')==cat
+   page.locator('[data-category='+cat+']').click();(page.locator('[data-option=effect] .arrow').last if cat=='effect' else page.locator('.variant').last).click();assert page.evaluate('activeCategory')==cat
   page.evaluate('applyLook(1);activateCategory("head")');page.screenshot(path=str(out/f'ui-{w}x{h}.png'))
-  print(w,h,'3 abas, 5 categorias e controles sem cortes OK')
+  print(w,h,'2 abas, 5 categorias e controles sem cortes OK')
  # Download and keyboard navigation still work with the tab panels.
  page.locator('#tab-appearance').focus();page.keyboard.press('ArrowRight');assert page.locator('#tab-colors').get_attribute('aria-selected')=='true'
  with page.expect_download() as download:page.locator('#exportPNG').click()

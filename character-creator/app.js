@@ -103,7 +103,7 @@ function activateCategory(name){
  renderVariants();
 }
 function renderVariants(){
- const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();const def=definitions.find(d=>d.id===activeCategory);
+ const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();grid.hidden=activeCategory==='effect';if(grid.hidden)return;const def=definitions.find(d=>d.id===activeCategory);
  const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
  def.options.forEach(([label],index)=>{const button=document.createElement('button');button.className='variant';button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(state[def.id]===index));
   const file=files[def.id]?.[index];
@@ -194,9 +194,6 @@ select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
 document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
-document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:2,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
-document.getElementById('importConfig').onclick=()=>document.getElementById('configFile').click();
-document.getElementById('configFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const config=JSON.parse(await file.text());state=validState(config.state||config);time=0;update();status.textContent='Escolhas carregadas.'}catch(error){status.textContent='Não foi possível carregar: '+error.message}finally{e.target.value=''}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
 async function init(){
  try{
