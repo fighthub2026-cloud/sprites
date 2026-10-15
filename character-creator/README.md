@@ -7,8 +7,8 @@ externos. Também pode ser servido como página estática.
 O personagem começa careca, sem rosto, com roupa básica e sem acessório. As setinhas
 alteram independentemente cabeça/cabelo/capuz, rosto, corpo/roupa, acessório e cor do efeito.
 
-- 6 opções de cabeça: careca, curto preto, prateado, capuz, azul e loiro.
-- 5 opções de rosto, incluindo a base sem rosto e as expressões do Ranger.
+- 5 opções de cabeça: careca, curto preto, prateado, azul e loiro.
+- 5 opções de rosto, incluindo a base sem rosto, Severo, Determinado, Resoluto e Ranger.
 - 6 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão e peitoral de aço.
 - Seletores independentes de pele, cabelo, sobrancelhas e olhos. Máscaras de materiais preservam contornos e convertem sombras e brilhos em sobreposições neutras.
 - Pele compartilhada por cabeça e mãos descobertas dos trajes Colete e Peitoral; as luvas não são recoloridas.
@@ -74,3 +74,12 @@ recursos anteriores continuam no HTML independente. Para verificar o encaixe em
 `/usr/bin/chromium`). O teste inicia e encerra seu próprio servidor local.
 
 A aba Arquivos foi removida. As escolhas continuam salvas automaticamente no navegador e incluídas no ZIP. O efeito pode ser escolhido pelas setas ou amostras de cor, sem uma segunda grade de botões.
+
+Os rostos Severo, Determinado e Resoluto foram redesenhados a partir das referências
+com três expressões cada. Em Rosto, use Aberto, Piscar e Dano para pausar e conferir
+a expressão; retome a reprodução para vê-las nas ações originais. O ZIP sempre
+exporta todas as expressões nos momentos definidos pelo rig.
+`prepare_expressions.py` registra o atlas `sources/expression-options.png` e gera
+máscaras independentes de sobrancelhas e íris, preservando a parte branca dos olhos.
+`prepare_materials.py` também executa essa preparação ao final. O capuz foi retirado
+da lista de cabelos; escolhas antigas são migradas preservando azul e loiro.

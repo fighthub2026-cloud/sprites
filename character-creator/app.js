@@ -6,8 +6,8 @@ let state={...defaults},view='assembled',playing=true,time=0,last=performance.no
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
- {id:'head',label:'Cabelo / capuz',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Capuz','Tecido azul-escuro.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
- {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Concentrado','Olhos verdes e sobrancelhas castanhas.'],['Aventureiro','Olhos azuis e expressão confiante.'],['Veterano','Olhos âmbar e sobrancelhas prateadas.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
+ {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
+ {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
  {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.']]},
  {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
@@ -52,7 +52,7 @@ function colored(key,materials){
  ctx.putImageData(image,0,0);colorCache.set(cacheKey,c);if(colorCache.size>160)colorCache.delete(colorCache.keys().next().value);return c;
 }
 function applyLook(index){
- const looks=[{head:1,face:1,outfit:3,colors:{skin:'#d4b890',hair:'#414b4d',brows:'#333332',eyes:'#878559'}},{head:4,face:2,outfit:4,colors:{skin:'#d9bd9c',hair:'#7bb7de',brows:'#6689a0',eyes:'#809dba'}},{head:5,face:2,outfit:5,colors:{skin:'#e5c9a6',hair:'#edc34c',brows:'#a48639',eyes:'#869bb1'}}];
+ const looks=[{head:1,face:1,outfit:3,colors:{skin:'#d4b890',hair:'#414b4d',brows:'#333332',eyes:'#878559'}},{head:3,face:2,outfit:4,colors:{skin:'#d9bd9c',hair:'#7bb7de',brows:'#6689a0',eyes:'#809dba'}},{head:4,face:3,outfit:5,colors:{skin:'#e5c9a6',hair:'#edc34c',brows:'#a48639',eyes:'#869bb1'}}];
  state={...state,...structuredClone(looks[index])};update();
 }
 function buildColorControls(){
@@ -66,7 +66,7 @@ function buildColorControls(){
 }
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];
- images['1']=colored(['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'][state.head],{skin:state.colors.skin,hair:state.colors.hair});
+ images['1']=colored(['heads/bald.png','heads/short.png','heads/silver.png','heads/blue.png','heads/blond.png'][state.head],{skin:state.colors.skin,hair:state.colors.hair});
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
   else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});
@@ -83,12 +83,12 @@ function validState(value){
  const colors={...defaultColors,...value.colors};for(const key of Object.keys(defaultColors))if(!/^#[0-9a-f]{6}$/i.test(colors[key]))throw Error('Cor inválida: '+key);
  return {...Object.fromEntries(definitions.map(def=>[def.id,value[def.id]])),colors};
 }
-function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify(state))}catch{}}
+function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify({...state,headOptionsVersion:2}))}catch{}}
 function update(){
  refreshTextures();persist();
  document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
  for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
- renderVariants();
+ renderVariants();renderExpressionChoices();
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
 }
@@ -102,9 +102,20 @@ function activateCategory(name){
  for(const def of definitions){const active=def.id===name,button=document.querySelector('[data-category="'+def.id+'"]');button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;document.querySelector('[data-option="'+def.id+'"]').hidden=!active}
  renderVariants();
 }
+function previewExpression(index){
+ select.value=['Idle','Idle Blinking','Hurt'][index];time=[0,500,0][index];
+ if(playing)document.getElementById('playPause').click();renderExpressionChoices();render();
+}
+function renderExpressionChoices(){
+ const row=document.getElementById('expressionChoices');if(!row)return;row.replaceChildren();row.hidden=!state.face;if(!state.face)return;
+ for(const [index,[name,file]] of [['Aberto','Face 01.png'],['Piscar','Face 03.png'],['Dano','Face 02.png']].entries()){
+  const button=document.createElement('button');button.className='expressionChoice';button.setAttribute('aria-label','Ver expressão: '+name);button.setAttribute('aria-pressed',String(!playing&&select.value===['Idle','Idle Blinking','Hurt'][index]));
+  const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+file];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
+ }
+}
 function renderVariants(){
  const grid=document.getElementById('variants');if(!grid)return;grid.replaceChildren();grid.hidden=activeCategory==='effect';if(grid.hidden)return;const def=definitions.find(d=>d.id===activeCategory);
- const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
+ const files={head:['heads/bald.png','heads/short.png','heads/silver.png','heads/blue.png','heads/blond.png'],face:[null,'faces/focused/Face 01.png','faces/adventurer/Face 01.png','faces/veteran/Face 01.png','faces/ranger/Face 01.png'],outfit:['outfits/basic/Body.png','original/Body.png','outfits/mage/Body.png','outfits/leather/Body.png','outfits/vest/Body.png','outfits/plate/Body.png'],accessory:[null,'accessories/Staff.png','accessories/Club.png','original/Sword.png']};
  def.options.forEach(([label],index)=>{const button=document.createElement('button');button.className='variant';button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(state[def.id]===index));
   const file=files[def.id]?.[index];
   if(file){const image=new Image();image.src=DATA.images[file];image.alt='';button.append(image)}else{const icon=document.createElement('span');icon.className=def.id==='effect'?'variantColor':'variantSymbol';if(def.id==='effect')icon.style.setProperty('--swatch',effects[index][1]);else icon.textContent=def.id==='face'?'◌':'—';button.append(icon)}
@@ -137,6 +148,7 @@ function buildControls(){
   const next=document.createElement('button');next.className='arrow';next.textContent='›';next.setAttribute('aria-label','Próximo: '+def.label);next.onclick=()=>change(def.id,1);
   row.append(previous,name,next);const desc=document.createElement('p');desc.className='description';section.append(top,row,desc);
   if(def.id==='effect'){const swatches=document.createElement('div');swatches.className='swatches';effects.forEach(([name,color],i)=>{const button=document.createElement('button');button.className='swatch';button.style.setProperty('--swatch',color);button.setAttribute('aria-label',name);button.onclick=()=>{state.effect=i;select.value='Slashing';time=200;setView('assembled');update()};swatches.append(button)});section.append(swatches)}
+  if(def.id==='face'){const row=document.createElement('div');row.id='expressionChoices';row.className='expressionChoices';row.setAttribute('aria-label','Expressões do rosto');section.append(row)}
   document.getElementById('options').append(section);
  }
 }
@@ -184,21 +196,21 @@ async function exportSprites(){
     status.textContent=`Exportando ${++done}/207 · ${animationLabels[name]||name}`;
    }
   }
-  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nCabeça/cabelo/capuz são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\n');
+  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\n');
   download(zip.finish(),'CustomAvatar-sprites.zip');status.textContent='Pronto: 13 peças e 207 frames exportados.';
  }catch(error){status.textContent=error.message}finally{setBusy(false)}
 }
 document.getElementById('assembledView').onclick=()=>setView('assembled');document.getElementById('partsView').onclick=()=>setView('parts');
-document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação')};
-select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
+document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação');renderExpressionChoices()};
+select.onchange=()=>{time=0;renderExpressionChoices();render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
+document.getElementById('example').onclick=()=>{state={head:2,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
 async function init(){
  try{
   await Promise.all(Object.entries(DATA.images).map(async([key,url])=>{const image=new Image();image.src=url;await image.decode();registry[key]=image}));
-  try{const saved=localStorage.getItem('chibi-creator-v1');if(saved)state=validState(JSON.parse(saved))}catch{}
+  try{const saved=localStorage.getItem('chibi-creator-v1');if(saved){const previous=JSON.parse(saved);if(previous.headOptionsVersion!==2)previous.head=[0,1,2,0,3,4][previous.head]??0;state=validState(previous)}}catch{}
   buildControls();buildColorControls();setupEditorTabs();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
  }catch(error){document.getElementById('loading').textContent='Não foi possível carregar as peças: '+error.message}
 }

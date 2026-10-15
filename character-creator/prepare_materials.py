@@ -66,4 +66,8 @@ def main():
   im=Image.open(ROOT/'assets/original'/name).convert('RGBA');d=np.array(im);r,g,b=d[:,:,:3].astype(float).transpose(2,0,1);region=(r>g*1.25)&(g>b*1.25)&(r>40)
   for k,v in enumerate([219,190,154]):d[:,:,k]=np.where(region,np.clip(v*r/81,0,255),d[:,:,k])
   dest=ROOT/'assets/hands/bare'/name;dest.parent.mkdir(exist_ok=True,parents=True);Image.fromarray(d).save(dest);mask(dest,'skin',skin)
+ # Atlas-based expressions own their masks; don't overwrite them with legacy
+ # color thresholds when preparing the other materials.
+ from prepare_expressions import main as expressions
+ expressions()
 if __name__=='__main__':main()
