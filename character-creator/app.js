@@ -5,9 +5,9 @@ let state={...defaults},view='assembled',playing=true,time=0,last=performance.no
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
- {id:'head',label:'Cabelo / capuz',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Castanho, com mechas simples.'],['Cabelo prateado','Penteado para trás.'],['Capuz','Tecido verde-escuro.'],['Elmo Ranger','Elmo e barba do personagem de referência.']]},
+ {id:'head',label:'Cabelo / capuz',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Capuz','Tecido azul-escuro.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
  {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Concentrado','Olhos verdes e sobrancelhas castanhas.'],['Aventureiro','Olhos azuis e expressão confiante.'],['Veterano','Olhos âmbar e sobrancelhas prateadas.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Túnica azul-petróleo com detalhes dourados.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Túnica, mangas, mãos e botas do mesmo conjunto.']]},
  {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
@@ -58,13 +58,14 @@ function tintedEffect(){
 }
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];
- images['1']=registry[['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','original/Head.png'][state.head]];
+ images['1']=registry[['heads/bald.png','heads/short.png','heads/silver.png','heads/hood.png','heads/blue.png','heads/blond.png'][state.head]];
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
   else if(state.face<4)images[id]=registry['faces/'+['focused','adventurer','veteran'][state.face-1]+'.png'];
+  else images[id]=registry['faces/ranger/'+DATA.rig.files[id].name];
  }
  if(state.outfit===0)images['0']=registry['outfits/basic/Body.png'];
- if(state.outfit===2){for(const id of ['0','2','5','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
+ if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
  images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png'][state.accessory]]:makeCanvas(400,128);
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
 }
@@ -146,7 +147,7 @@ document.getElementById('assembledView').onclick=()=>setView('assembled');docume
 document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação')};
 select.onchange=()=>{time=0;render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:1,face:1,outfit:1,accessory:1,effect:1};select.value='Idle';time=0;status.textContent='Exemplo montado. Continue trocando as peças.';update()};
+document.getElementById('example').onclick=()=>{state={head:3,face:1,outfit:2,accessory:1,effect:0};select.value='Idle';time=0;status.textContent='Mago montado. Túnica e membros seguem o mesmo conjunto.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
 document.getElementById('exportConfig').onclick=()=>download(new Blob([JSON.stringify({version:1,state,choices:Object.fromEntries(definitions.map(d=>[d.id,d.options[state[d.id]][0]]))},null,2)],{type:'application/json'}),'CustomAvatar-escolhas.json');
 document.getElementById('importConfig').onclick=()=>document.getElementById('configFile').click();

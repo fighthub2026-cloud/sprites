@@ -7,7 +7,7 @@ externos. Também pode ser servido como página estática.
 O personagem começa careca, sem rosto, com roupa básica e sem acessório. As setinhas
 alteram independentemente cabeça/cabelo/capuz, rosto, corpo/roupa, acessório e cor do efeito.
 
-- 5 opções de cabeça, incluindo a base careca e o elmo original.
+- 6 opções de cabeça: careca, curto preto, prateado, capuz, azul e loiro.
 - 5 opções de rosto, incluindo a base sem rosto e as expressões do Ranger.
 - 3 roupas, com braços e pernas correspondentes.
 - 4 opções de acessório, incluindo mãos livres.
@@ -34,7 +34,9 @@ e Carregar escolhas salvas para transferir a configuração entre navegadores.
 - `assets/original/`: as peças e o SCML do `Forest_Ranger_3.zip` fornecido.
 - `assets/heads/`, `assets/faces/`, `assets/outfits/basic/`: novas texturas geradas
   e registradas para a montagem.
-- `assets/outfits/mage/`, `assets/accessories/`: opções reutilizadas dos assets do projeto.
+- `assets/outfits/mage/`: túnica, mangas, mãos e botas geradas como um conjunto e registradas nos pivôs originais.
+- `assets/accessories/`: cajado simples do mesmo conjunto, clava e bastão Ranger.
+- `sources/`: atlas gerados de cabeças, peças do mago e rostos, antes do corte e registro.
 - `rig.json` e `catalog.json`: dados e imagens para o HTML independente.
 - `template.html`, `style.css`, `app.js`: fontes da interface.
 
@@ -44,3 +46,5 @@ existente no projeto, embutido pelo script de construção.
 
 Materiais originais Craftpix e rig fornecidos pelo usuário permanecem sujeitos à
 licença do pacote original: https://craftpix.net/file-licenses/.
+
+Para reconstruir as texturas refinadas a partir dos atlas, execute `python character-creator/pack_refinement.py` antes de `build.py`. Esse passo de preparação requer Pillow, NumPy, SciPy e ImageMagick; a página pronta não precisa dessas ferramentas.
