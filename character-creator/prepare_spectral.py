@@ -31,8 +31,6 @@ def main():
   lum=r*.2126+g*.7152+b*.0722;# Upper light area is the base color; the lower grey area is a neutral
   # 25% shadow, not a white highlight over the selected eyebrow color.
   shades=np.where(lum>205,128,np.where(lum<140,80,96))
-  if name!='Face 01.png':
-   d[brows,:3]=INK.astype('uint8');brows[:]=False
   for material,region,base in [('brows',brows,np.array([234,226,223])),('eyes',eyes,np.array([146,190,217]))]:
    shade=shades if material=='brows' else np.full_like(shades,128)
    colors=np.where((shade<=128)[:,:,None],base*shade[:,:,None]/128,base+(255-base)*(shade[:,:,None]-128)/127)
