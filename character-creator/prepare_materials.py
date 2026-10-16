@@ -1,7 +1,7 @@
 """Build explicit recoloring masks; outlines and other materials stay untouched."""
 from pathlib import Path
 import numpy as np
-from scipy.ndimage import distance_transform_edt
+from scipy.ndimage import distance_transform_edt,median_filter,label
 from PIL import Image
 ROOT=Path(__file__).resolve().parent
 
@@ -76,6 +76,21 @@ def skin_mask(path):
  weights=np.array([.2126,.7152,.0722]);lum=rgb@weights;ink_lum=float(ink@weights);base=float(skin[0]@weights)
  recovered=ink_lum+(lum-ink_lum)/np.maximum(coverage,.01)
  shade=np.where(recovered/base<.88,100,np.where(recovered/base>1.1,150,128))
+ if path.parent.name=='heads':
+  # Sparse resampling highlights at ear/ink boundaries aren't anatomical
+  # highlights. Extend the neighboring solid tone without moving the contour.
+  yy,xx=np.indices(selected.shape);ear=((xx-115)/55)**2+((yy-325)/75)**2<1
+  distance=distance_transform_edt(~outline)
+  confident=selected&(coverage>=.98)&(distance>3)
+  if confident.any():
+   _,nearest=distance_transform_edt(~confident,return_indices=True)
+   boundary=ear&selected&(distance<=2.5)
+   shade[boundary]=shade[nearest[0],nearest[1]][boundary]
+  _,nearest=distance_transform_edt(~selected,return_indices=True)
+  smooth=median_filter(shade[nearest[0],nearest[1]],size=3)
+  shade[ear&selected]=smooth[ear&selected]
+  islands,_=label(ear&selected&(shade>100));sizes=np.bincount(islands.ravel())
+  tiny=(islands>0)&(sizes[islands]<32);shade[tiny]=100
  out=np.zeros_like(d);out[:,:,:3]=shade[:,:,None];out[:,:,3]=np.where(selected,np.rint(coverage*255),0).astype('uint8')
  dest=ROOT/'assets/masks'/path.relative_to(ROOT/'assets');dest=dest.with_name(dest.stem+'-skin.png');dest.parent.mkdir(exist_ok=True,parents=True);Image.fromarray(out).save(dest)
 

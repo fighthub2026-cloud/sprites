@@ -41,4 +41,11 @@ class ImportedParts(unittest.TestCase):
   for name in ['Face 02','Face 03']:
    mask=np.array(Image.open(ROOT/'assets/masks/faces/fallen'/(name+'-brows.png')))
    self.assertFalse(np.any(mask[:,:,3]))
+ def test_hair_middle_is_base_dark_is_shadow_light_is_highlight(self):
+  source=np.array(Image.open(ROOT/'assets/packs/fallen/Head.png').convert('RGBA'))
+  mask=np.array(Image.open(ROOT/'assets/masks/packs/fallen/Head-hair.png'))
+  for rgb,shade in [([206,196,190],128),([165,157,152],100),([231,226,223],168)]:
+   region=np.all(source[:,:,:3]==rgb,axis=2)&(source[:,:,3]==255)&(mask[:,:,3]>0)
+   self.assertGreater(np.count_nonzero(region),1000)
+   self.assertTrue(np.all(mask[region,:3]==shade))
 if __name__=='__main__':unittest.main()

@@ -186,3 +186,9 @@ Na sobrancelha aberta do Espectral, a faixa superior é a cor base escolhida
 e a inferior é uma sombra neutra multiplicada por 0,75, equivalente a uma camada
 de cinza transparente. As duas acompanham a mesma cor, sem clarear a faixa
 superior para branco. Os contornos e as expressões fechadas permanecem pretos.
+
+As máscaras das orelhas removem pequenas ilhas de brilho e estabilizam o tom
+perto do contorno, sem alterar o alfa ou o desenho das linhas. No cabelo Fallen,
+o cinza intermediário é a cor base; as áreas originalmente escuras usam sombra
+(neutra, multiplicada) e as claras usam brilho branco parcial. Os pixels de
+antialias escuros não recebem mais o tom de brilho por ambiguidade de paleta.

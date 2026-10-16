@@ -22,7 +22,19 @@ def material_masks(path,groups):
  for name,palette,shades in groups:
   selected=(nearest>=start)&(nearest<start+len(palette))&(d[:,:,3]>0)&~ink
   if name:
-   m=np.zeros_like(d);idx=np.clip(nearest-start,0,len(palette)-1);m[:,:,:3]=np.array(shades,dtype='uint8')[idx,None];m[:,:,3]=np.where(selected,np.rint(coverage*255),0)
+   m=np.zeros_like(d);idx=np.clip(nearest-start,0,len(palette)-1)
+   paint_coverage=coverage
+   if name=='hair' and path.parent.name=='fallen':
+    # Infer tone from the actual flat source colors, not only ray direction.
+    # Almost-black antialias pixels can point toward a bright palette color;
+    # assigning them its highlight produced light speckles on dark hair.
+    idx=np.sum((rgb[:,:,None,:]-palette[None,None,:,:])**2,axis=3).argmin(2)
+    direction=palette[idx]-INK
+    edge=np.clip(np.sum(v*direction,axis=2)/np.sum(direction**2,axis=2),0,1)
+    darkest=float(np.min(palette@np.array([.2126,.7152,.0722])))
+    paint_coverage=np.where(rgb@np.array([.2126,.7152,.0722])<darkest*.9,edge,coverage)
+   m[:,:,:3]=np.array(shades,dtype='uint8')[idx,None]
+   m[:,:,3]=np.where(selected,np.rint(paint_coverage*255),0)
    dest=ROOT/'assets/masks'/path.relative_to(ROOT/'assets');dest=dest.with_name(dest.stem+'-'+name+'.png');dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(m).save(dest)
   start+=len(palette)
 
@@ -31,7 +43,7 @@ def main():
  for source in SOURCE.glob('*.png'):
   im=Image.open(source).convert('RGBA');d=np.array(im);rgb=d[:,:,:3].astype(int);ink=(rgb.max(2)<=42)&((rgb.max(2)-rgb.min(2))<=14)&(d[:,:,3]>0);d[ink,:3]=INK.astype('uint8');Image.fromarray(d).save(dest/source.name)
  for name in ['Head.png','Body.png','Right Hand.png','Left Hand.png']:
-  groups=[('skin',SKIN,[128,108,116,96]),('hair' if name=='Head.png' else None,HAIR,[128,178,219,96]),(None,METAL,[128]*len(METAL))]
+  groups=[('skin',SKIN,[128,108,116,96]),('hair' if name=='Head.png' else None,HAIR,[100,128,168,76]),(None,METAL,[128]*len(METAL))]
   if name=='Head.png':groups=groups[:2]
   material_masks(dest/name,groups)
  # The source rig uses file 11=Face03 (hurt), file12=Face02 (blink).
