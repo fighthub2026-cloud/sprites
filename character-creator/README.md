@@ -256,3 +256,28 @@ do arco; o rig não recebe deslocamento global. Isso mantém o ajuste idêntico
 na prévia, nas peças PNG, no SCML e nas sequências exportadas.
 Verificação da ponta em 47 armas × 4 efeitos, na pose final do ataque básico:
 `python character-creator/tests/check_effect_reach.py`.
+
+
+## Mago roxo — mago.zip
+
+O botão **Mago roxo** seleciona a nova cabeça (índice 8) e a túnica (traje 9),
+com os braços enviados e o cajado crescente do catálogo. O rosto escolhido é
+preservado; se estiver Sem rosto, a combinação usa Determinado. O ZIP enviado
+contém quatro peças e não inclui novas expressões faciais.
+
+Os originais estão em `assets/imported/mage-tunic/`; `prepare_mage_tunic.py`
+registra cabeça 480×480, corpo 320×320 e braços 128×128, preservando o alfa e
+as posições das peças. As mãos e pernas não são redesenhadas nem copiadas para
+um novo pack: o render usa diretamente `packs/fallen/`. As mãos continuam usando
+as máscaras de pele da Fallen; as pernas mantêm a pintura nativa.
+
+A cabeça recebe máscaras independentes de pele/cabelo com sombras neutras;
+o contorno marrom da arte enviada é normalizado para o carvão do catálogo.
+A máscara de encaixe do rosto deixa as bordas das sobrancelhas atrás do cabelo.
+O script participa da preparação geral via `prepare_materials.py`.
+
+Verificação funcional: `python character-creator/tests/check_mage_tunic.py`
+confere seleção persistida, mistura com os nove cabelos, uso real dos membros
+Fallen, cores independentes, 17 ações e exportação das 13 peças e 207 frames.
+`check_hair_occlusion.py` agora verifica 168 combinações/expressões;
+`check_layout.py` verifica os oito botões de combinação em 11 tamanhos de tela.

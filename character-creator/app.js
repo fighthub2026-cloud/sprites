@@ -6,9 +6,9 @@ let state={...defaults},view='assembled',playing=true,time=0,last=performance.no
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
- {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.'],['Espectral · capuz','Capuz do novo pacote, preservando o desenho original.'],['Valquíria · elmo','Elmo alado e cabelo do pacote enviado.']]},
+ {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.'],['Espectral · capuz','Capuz do novo pacote, preservando o desenho original.'],['Valquíria · elmo','Elmo alado e cabelo do pacote enviado.'],['Mago · cabelo','Cabelo claro e cabeça sem rosto do mago enviado.']]},
  {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.'],['Fallen · rosto','As três expressões originais do pacote enviado.'],['Espectral · rosto','Olhar marcado e três expressões originais.'],['Valquíria · rosto','Olhos, sobrancelhas e três expressões do novo conjunto.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.'],['Espectral · túnica','Túnica com asas, braços, mãos e pernas do novo pacote.'],['Valquíria · armadura','Armadura alada, braços, luvas e botas do novo conjunto.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.'],['Espectral · túnica','Túnica com asas, braços, mãos e pernas do novo pacote.'],['Valquíria · armadura','Armadura alada, braços, luvas e botas do novo conjunto.'],['Mago · túnica roxa','Túnica e braços do ZIP; mãos e pernas da Fallen.']]},
  {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.'],['Cajado espectral','Cajado mágico com efeito azul do novo pacote.'],...DATA.equipment.staves.map(item=>[item.name,'Cajado do pacote Craftpix, com tamanho e encaixe originais.']),['Espada Valquíria','Espada original do novo conjunto.'],['Tridente alternativo','Arma alternativa incluída no ZIP.']]},
  {id:'shield',label:'Escudo',options:[['Nenhum','Sem escudo.'],...DATA.equipment.shields.map(item=>[item.name,'Escudo com encaixe e movimento próprios; combina com qualquer arma.']),['Escudo Valquíria','Escudo original com o encaixe do conjunto enviado.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
@@ -86,6 +86,10 @@ function applyGuardian(){
  state={head:7,face:7,outfit:8,accessory:46,shield:41,effect:0,effectShape:3,colors:{skin:'#c4996e',hair:'#73736b',brows:'#6c533d',eyes:'#3d514b'}};
  select.value='Idle';time=0;update();status.textContent='Valquíria completa, com espada e escudo independente.';
 }
+function applyTunicMage(){
+ state={head:8,face:state.face||2,outfit:9,accessory:21,shield:0,effect:2,effectShape:0,colors:{skin:'#fccaa3',hair:'#ecdaca',brows:'#6c533d',eyes:'#654587'}};
+ select.value='Idle';time=0;update();status.textContent='Mago roxo: cabeça, túnica e braços novos; mãos e pernas da Fallen.';
+}
 function buildColorControls(){
  const section=document.getElementById('colors');
  for(const [key,label]of Object.entries({skin:'Pele',hair:'Cabelo / capuz',brows:'Sobrancelhas',eyes:'Olhos'})){
@@ -98,7 +102,7 @@ function buildColorControls(){
 // Each hairstyle retains its own original outline and integrated ear.
 // Register the complete drawing to the former silver head's facial proportions.
 function assembledHead(){
- const name=['bald','short','silver','blue','blond','fallen','spectral','guardian'][state.head];
+ const name=['bald','short','silver','blue','blond','fallen','spectral','guardian','mage-tunic'][state.head];
  const image=colored(state.head>=5?'packs/'+name+'/Head.png':'heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
  const placement=DATA.headRegistration.styles[name];
  const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';
@@ -114,8 +118,8 @@ function textureMatrix(value,file){
 }
 function faceCoverage(){
  if(faceCoverageCache.has(state.head))return faceCoverageCache.get(state.head);
- const name=['bald','short','silver','blue','blond','fallen','spectral','guardian'][state.head],placement=DATA.headRegistration.styles[name];
- const key=state.head>=5?'masks/packs/'+name+'/Head-skin.png':'masks/heads/'+name+'-skin.png';
+ const name=['bald','short','silver','blue','blond','fallen','spectral','guardian','mage-tunic'][state.head],placement=DATA.headRegistration.styles[name];
+ const key=state.head===8?'masks/packs/mage-tunic/Head-face.png':state.head>=5?'masks/packs/'+name+'/Head-skin.png':'masks/heads/'+name+'-skin.png';
  const headMask=makeCanvas(480,480),headCtx=headMask.getContext('2d');headCtx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);headCtx.drawImage(registry[key],0,0);
  const base=DATA.rig.animations.find(a=>a.name==='Base');
  const transforms=Object.values(base.timelines).flat().map(k=>k.transform);
@@ -137,7 +141,12 @@ function refreshTextures(){
  if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
  if(state.outfit>=3&&state.outfit<=5){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
- if(state.outfit>=6){const pack=['fallen','spectral','guardian'][state.outfit-6];for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/'+pack+'/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
+ if(state.outfit>=6&&state.outfit<=8){const pack=['fallen','spectral','guardian'][state.outfit-6];for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/'+pack+'/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
+ if(state.outfit===9){
+  for(const id of ['0','2','5'])images[id]=registry['packs/mage-tunic/'+DATA.rig.files[id].name];
+  for(const id of ['3','6'])images[id]=colored('packs/fallen/'+DATA.rig.files[id].name,{skin:state.colors.skin});
+  for(const id of ['7','8'])images[id]=registry['packs/fallen/'+DATA.rig.files[id].name];
+ }
  images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png','packs/spectral/Sword.png',...DATA.equipment.staves.map(item=>item.key),'packs/guardian/Sword.png','accessories/GuardianTrident.png'][state.accessory]]:makeCanvas(400,128);
  if(state.shield)images['13']=registry[state.shield===41?'packs/guardian/Shield.png':DATA.equipment.shields[state.shield-1].key];
  images['10']=tintedEffect(images['9']);player.images=images;player.rig=selectedRig();

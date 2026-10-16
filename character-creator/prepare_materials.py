@@ -111,4 +111,6 @@ def main():
  spectral()
  from prepare_guardian import main as guardian
  guardian()
+ from prepare_mage_tunic import main as mage_tunic
+ mage_tunic()
 if __name__=='__main__':main()
