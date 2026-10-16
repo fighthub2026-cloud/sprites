@@ -2,7 +2,6 @@
 from pathlib import Path
 import unittest
 import numpy as np
-from scipy.ndimage import label
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]/'assets'
 class SkinMasks(unittest.TestCase):
@@ -24,11 +23,11 @@ class SkinMasks(unittest.TestCase):
    mask=np.array(Image.open(ROOT/'masks/hands/bare'/f'{name}-skin.png'))
    self.assertGreater(np.count_nonzero(mask[:,:,3]),100)
    self.assertTrue(set(np.unique(mask[:,:,0][mask[:,:,3]>0])).issubset({100,128,150}))
- def test_ear_shading_has_no_tiny_bright_islands(self):
+ def test_ear_fill_is_uniform_without_texture_bands(self):
   for name in ['bald','short','silver','blue','blond']:
    mask=np.array(Image.open(ROOT/'masks/heads'/f'{name}-skin.png'))
    yy,xx=np.indices(mask.shape[:2]);ear=((xx-115)/55)**2+((yy-325)/75)**2<1
-   islands,_=label(ear&(mask[:,:,3]>0)&(mask[:,:,0]>100))
-   sizes=np.bincount(islands.ravel())[1:]
-   self.assertTrue(np.all(sizes>=32),name)
+   selected=ear&(mask[:,:,3]>0)
+   self.assertGreater(np.count_nonzero(selected),500,name)
+   self.assertTrue(np.all(mask[:,:,0][selected]==100),name)
 if __name__=='__main__':unittest.main()
