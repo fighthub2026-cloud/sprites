@@ -65,6 +65,16 @@ def shield_rig():
 def main():
     dest = ROOT/'assets/packs/guardian';dest.mkdir(parents=True,exist_ok=True)
     for source in SOURCE.glob('*.png'):outline(Image.open(source)).save(dest/source.name)
+    # Blush is baked into the head, not the expression textures. Restore the
+    # underlying skin before generating its recoloring and face coverage masks.
+    head_path=dest/'Head.png';head=np.array(Image.open(head_path))
+    rgb=head[:,:,:3].astype(float);delta=np.array([232,163,163])-SKIN[0]
+    amount=np.sum((rgb-SKIN[0])*delta,axis=2)/np.sum(delta**2)
+    error=np.sum((rgb-SKIN[0]-amount[:,:,None]*delta)**2,axis=2)
+    yy,xx=np.indices(amount.shape)
+    cheeks=(yy>=355)&(yy<386)&(((xx>=190)&(xx<231))|((xx>=344)&(xx<382)))
+    blush=cheeks&(head[:,:,3]>0)&(amount>0)&(amount<=1.02)&(error<9)
+    head[blush,:3]=SKIN[0].astype('uint8');Image.fromarray(head).save(head_path)
     trident = Image.open(SOURCE/'Weapon.png').convert('RGBA').rotate(180)
     trident = trident.crop(trident.getbbox());trident.thumbnail((344,118),Image.Resampling.LANCZOS)
     weapon = Image.new('RGBA',(400,128));weapon.alpha_composite(trident,(28,(128-trident.height)//2))

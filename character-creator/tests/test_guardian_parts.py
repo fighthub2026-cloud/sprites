@@ -10,6 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'assets/imported/guardian'
 
 class GuardianParts(unittest.TestCase):
+    def test_cheeks_use_skin_instead_of_pink_blush(self):
+        head=np.array(Image.open(ROOT/'assets/packs/guardian/Head.png'))
+        skin=np.array(Image.open(ROOT/'assets/masks/packs/guardian/Head-skin.png'))
+        for x,y in [(210,370),(362,370)]:
+            self.assertTrue(np.array_equal(head[y,x,:3],[196,153,110]))
+            self.assertGreater(skin[y,x,3],240)
+
     def test_hair_mask_covers_both_locks_and_excludes_helmet(self):
         mask=np.array(Image.open(ROOT/'assets/masks/packs/guardian/Head-hair.png'))[:,:,3]
         self.assertFalse(np.any(mask[:240]))

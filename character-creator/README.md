@@ -321,3 +321,8 @@ Na Valquíria, a máscara de cabelo abrange somente as duas mechas expostas,
 mantêm as cores originais mesmo quando a cor de cabelo é alterada. A separação
 usa os componentes isolados pelo contorno nativo, incluindo a antialias das
 mechas, em vez de recolorir toda a paleta cinza compartilhada com o metal.
+
+
+As marcas rosas nas bochechas da Valquíria foram removidas na preparação da
+cabeça, restaurando a cor de pele sob o preenchimento e suas bordas. As novas
+áreas entram na máscara de pele e acompanham o seletor em todas as expressões.
