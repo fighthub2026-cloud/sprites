@@ -181,3 +181,8 @@ Testes do conjunto: `python character-creator/tests/check_spectral.py` e
 `python -m unittest discover -s character-creator/tests -v`. A verificação de
 sobreposição cobre 108 combinações de cabelos e expressões. A interface continua
 em uma tela; o novo pacote também exporta 13 peças e 207 frames em 17 ações.
+
+Na sobrancelha aberta do Espectral, a faixa superior é a cor base escolhida
+e a inferior é uma sombra neutra multiplicada por 0,75, equivalente a uma camada
+de cinza transparente. As duas acompanham a mesma cor, sem clarear a faixa
+superior para branco. Os contornos e as expressões fechadas permanecem pretos.

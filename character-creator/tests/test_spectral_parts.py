@@ -29,4 +29,12 @@ class SpectralParts(unittest.TestCase):
   skin=np.array(Image.open(ROOT/'assets/masks/packs/spectral/Head-skin.png'))[:,:,3]>0
   hood=np.array(Image.open(ROOT/'assets/masks/packs/spectral/Head-hair.png'))[:,:,3]>0
   self.assertFalse(np.any(skin&hood));self.assertGreater(np.count_nonzero(skin),25000);self.assertGreater(np.count_nonzero(hood),50000)
+ def test_upper_brow_is_base_and_lower_brow_is_neutral_shadow(self):
+  source=np.array(Image.open(SOURCE/'Face 01.png').convert('RGBA'))
+  mask=np.array(Image.open(ROOT/'assets/masks/faces/spectral/Face 01-brows.png'))
+  selected=mask[:,:,3]>0
+  upper=np.all(source[:,:,:3]==[234,226,223],axis=2)&selected
+  lower=np.all(source[:,:,:3]==[175,169,167],axis=2)&selected
+  self.assertGreater(np.count_nonzero(upper),1000);self.assertGreater(np.count_nonzero(lower),1000)
+  self.assertTrue(np.all(mask[upper,:3]==128));self.assertTrue(np.all(mask[lower,:3]==96))
 if __name__=='__main__':unittest.main()

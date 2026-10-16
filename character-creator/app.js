@@ -61,7 +61,7 @@ function applyFallen(){
  select.value='Idle';time=0;update();status.textContent='Conjunto Fallen completo, com todas as peças do ZIP.';
 }
 function applySpectral(){
- state={head:6,face:6,outfit:7,accessory:5,effect:0,effectShape:2,colors:{skin:'#d3bcb4',hair:'#514646',brows:'#afa9a7',eyes:'#92bed9'}};
+ state={head:6,face:6,outfit:7,accessory:5,effect:0,effectShape:2,colors:{skin:'#d3bcb4',hair:'#514646',brows:'#eae2df',eyes:'#92bed9'}};
  select.value='Idle';time=0;update();status.textContent='Conjunto Espectral completo, com todas as peças do novo ZIP.';
 }
 function buildColorControls(){

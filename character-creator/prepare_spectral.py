@@ -28,10 +28,12 @@ def main():
    if box is not None and box[0].start<90 and np.count_nonzero(components[box]==i+1)>30:brows|=components==i+1
   eyes=opaque&(b>r*1.2)&(g>r*1.08)&(b>g*1.04)&(b>65)&~brows
   d[opaque&(np.maximum.reduce([r,g,b])<65),:3]=INK.astype('uint8')
-  lum=r*.2126+g*.7152+b*.0722;shades=np.where(lum<140,96,np.where(lum>205,210,128))
+  lum=r*.2126+g*.7152+b*.0722;# Upper light area is the base color; the lower grey area is a neutral
+  # 25% shadow, not a white highlight over the selected eyebrow color.
+  shades=np.where(lum>205,128,np.where(lum<140,80,96))
   if name!='Face 01.png':
    d[brows,:3]=INK.astype('uint8');brows[:]=False
-  for material,region,base in [('brows',brows,np.array([175,169,167])),('eyes',eyes,np.array([146,190,217]))]:
+  for material,region,base in [('brows',brows,np.array([234,226,223])),('eyes',eyes,np.array([146,190,217]))]:
    shade=shades if material=='brows' else np.full_like(shades,128)
    colors=np.where((shade<=128)[:,:,None],base*shade[:,:,None]/128,base+(255-base)*(shade[:,:,None]-128)/127)
    d[region,:3]=np.clip(colors[region],0,255).astype('uint8');m=np.zeros_like(d);m[:,:,:3]=shade[:,:,None];m[:,:,3]=np.where(region,d[:,:,3],0)
