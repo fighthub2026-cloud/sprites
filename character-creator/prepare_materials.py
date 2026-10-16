@@ -80,6 +80,8 @@ def skin_mask(path):
  dest=ROOT/'assets/masks'/path.relative_to(ROOT/'assets');dest=dest.with_name(dest.stem+'-skin.png');dest.parent.mkdir(exist_ok=True,parents=True);Image.fromarray(out).save(dest)
 
 def main():
+ from prepare_native import register_faces
+ register_faces()
  skin=lambda r,g,b:(r>95)&(r>g*1.06)&(g>b*1.09)&(b>g*.53)
  for p in (ROOT/'assets/heads').glob('*.png'):
   skin_mask(p)

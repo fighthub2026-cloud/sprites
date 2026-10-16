@@ -142,3 +142,9 @@ Testes: `python -m unittest discover -s character-creator/tests -v` e
 No rosto Fallen, a máscara da sobrancelha aberta cobre somente o interior
 fechado pelo contorno original. Nas expressões fechadas, acompanha o interior
 do traço superior e preserva uma borda preta, sem atingir o olho ou os cílios.
+
+Todas as opções de rosto agora ocupam um plano de 232 × 152 px para as feições
+na expressão aberta, centrado em (163, 118) na textura de 320 × 240. Olhos,
+sobrancelhas, nariz e boca foram ampliados juntos, incluindo as expressões
+fechadas; o tamanho da cabeça, cabelos e corpos permanece inalterado. O Fallen
+usa a escala facial nativa do ZIP. As máscaras acompanham o novo tamanho.

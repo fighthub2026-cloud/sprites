@@ -28,7 +28,7 @@ class ImportedParts(unittest.TestCase):
     hair=np.array(Image.open(ROOT/'assets/masks/packs/fallen/Head-hair.png'))
     self.assertFalse(np.any((hair[:,:,3]>0)&(m[:,:,3]>0)))
  def test_open_brow_mask_fills_holes_and_preserves_original_ink(self):
-  sx=204/232;sy=129/152;tx=60-47*sx;ty=53-42*sy
+  sx=sy=1;tx=ty=0
   original=np.array(Image.open(SOURCE/'Face 01.png').convert('RGBA').transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1/sy,-ty/sy),Image.Resampling.BICUBIC))
   actual=np.array(Image.open(ROOT/'assets/faces/fallen/Face 01.png').convert('RGBA'))
   mask=np.array(Image.open(ROOT/'assets/masks/faces/fallen/Face 01-brows.png'))[:,:,3]>0

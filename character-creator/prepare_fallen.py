@@ -37,7 +37,9 @@ def main():
  # The source rig uses file 11=Face03 (hurt), file12=Face02 (blink).
  # Keep the exact same filenames: the existing rig uses those slots too.
  faces=ROOT/'assets/faces/fallen';faces.mkdir(parents=True,exist_ok=True)
- sx=204/232;sy=129/152;tx=60-47*sx;ty=53-42*sy
+ # Preserve the supplied native facial scale and registration. Reducing it to
+ # the older catalog plane made the eyes, brows, nose and mouth too small.
+ sx=sy=1;tx=ty=0
  for target,source in [('Face 01.png','Face 01.png'),('Face 02.png','Face 02.png'),('Face 03.png','Face 03.png')]:
   im=Image.open(SOURCE/source).convert('RGBA').transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1/sy,-ty/sy),Image.Resampling.BICUBIC)
   d=np.array(im);r,g,b=d[:,:,:3].astype(float).transpose(2,0,1);opaque=d[:,:,3]>0
@@ -56,7 +58,7 @@ def main():
    # run in each column, never the eye/lash below it or a horizontal y cutoff.
    dark=(d[:,:,3]>128)&(np.maximum.reduce([r,g,b])<75)
    upper=np.zeros_like(dark)
-   for x in range(60,265):
+   for x in range(320):
     rows=np.flatnonzero(dark[53:135,x])+53
     if not len(rows) or rows[0]>125:continue
     start=int(rows[0]);end=start
