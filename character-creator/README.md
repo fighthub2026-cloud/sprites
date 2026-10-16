@@ -116,3 +116,8 @@ O Astuto mantém as sobrancelhas separadas, com contorno engrossado em 2 px.
 O novo Perspicaz tem a sobrancelha fundida à faixa superior do olho; o preenchimento
 dessa faixa responde ao seletor de sobrancelhas, preservando a borda e o branco
 dos olhos. `prepare_keen_face.py` prepara suas três expressões.
+
+O Perspicaz foi refinado com sobrancelhas curvas e preenchimento próprio.
+A máscara é extraída do preenchimento verde explícito do atlas, sem usar o
+contorno escuro como área de cor. Todas as bordas e a divisão entre sobrancelha
+e branco do olho permanecem em carvão `#1b1a18`, independentemente da paleta.
