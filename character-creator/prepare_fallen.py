@@ -43,7 +43,7 @@ def main():
  for source in SOURCE.glob('*.png'):
   im=Image.open(source).convert('RGBA');d=np.array(im);rgb=d[:,:,:3].astype(int);ink=(rgb.max(2)<=42)&((rgb.max(2)-rgb.min(2))<=14)&(d[:,:,3]>0);d[ink,:3]=INK.astype('uint8');Image.fromarray(d).save(dest/source.name)
  for name in ['Head.png','Body.png','Right Hand.png','Left Hand.png']:
-  groups=[('skin',SKIN,[128,108,116,96]),('hair' if name=='Head.png' else None,HAIR,[100,128,168,76]),(None,METAL,[128]*len(METAL))]
+  groups=[('skin',SKIN,[128,108,116,96]),('hair' if name=='Head.png' else None,HAIR,[100,128,134,76]),(None,METAL,[128]*len(METAL))]
   if name=='Head.png':groups=groups[:2]
   material_masks(dest/name,groups)
  # The source rig uses file 11=Face03 (hurt), file12=Face02 (blink).
