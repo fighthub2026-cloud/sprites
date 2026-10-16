@@ -98,4 +98,6 @@ def main():
  # color thresholds when preparing the other materials.
  from prepare_expressions import main as expressions
  expressions()
+ from prepare_fallen import main as fallen
+ fallen()
 if __name__=='__main__':main()

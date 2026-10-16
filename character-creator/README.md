@@ -5,16 +5,16 @@ e o código; funciona sem importar ZIPs, instalar dependências ou buscar recurs
 externos. Também pode ser servido como página estática.
 
 O personagem começa careca, sem rosto, com roupa básica e sem acessório. As setinhas
-alteram independentemente cabeça/cabelo/capuz, rosto, corpo/roupa, acessório e cor do efeito.
+alteram independentemente cabeça/cabelo, rosto, corpo/roupa, acessório e cor do efeito.
 
-- 5 opções de cabeça: careca, curto preto, prateado, azul e loiro.
-- 5 opções de rosto: Sem rosto, Severo, Determinado, Resoluto e Ranger.
-- 6 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão e peitoral de aço.
+- 6 opções de cabeça: careca, curto preto, prateado, azul, loiro e Fallen.
+- 6 opções de rosto: Sem rosto, Severo, Determinado, Resoluto, Ranger e Fallen.
+- 7 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão, peitoral de aço e armadura Fallen.
 - Seletores independentes de pele, cabelo, sobrancelhas e olhos. Máscaras de materiais preservam contornos e convertem sombras e brilhos em sobreposições neutras.
 - Pele compartilhada por cabeça e mãos descobertas dos trajes Colete e Peitoral; as luvas não são recoloridas.
 - Três combinações prontas inspiradas nas referências (Couro, Azul e Loiro).
-- 4 opções de acessório, incluindo mãos livres.
-- 6 cores para o efeito de ataque.
+- 5 opções de acessório, incluindo mãos livres e a espada Fallen.
+- 6 cores e 2 traços para o efeito de ataque (Ranger e Fallen).
 - Prévia montada e visão das 13 peças.
 - 17 animações, pausa e ajuste de velocidade.
 - PNG transparente de 900 × 900, configuração JSON e exportação completa em ZIP.
@@ -25,7 +25,7 @@ ossos e os movimentos partem do SCML enviado pelo usuário. A arma preserva exat
 do original, inclusive o arco completo nos ataques em pé, correndo e no ar.
 Cajado e clava ocupam o mesmo alcance da textura original.
 
-As opções de cabelo e capuz substituem a peça `Head.png`, como no padrão do pacote
+As opções de cabelo substituem a peça `Head.png`, como no padrão do pacote
 original; o rosto é uma peça independente. Todos os rostos com feições mantêm as três expressões originais, incluindo piscar
 e dano, com o mesmo registro entre elas.
 
@@ -114,3 +114,27 @@ geral de materiais também chama esse passo.
 
 Astuto e Perspicaz foram removidos do catálogo. Escolhas salvas desses rostos
 são migradas para Severo, preservando cabelo, roupa, acessórios e cores.
+
+
+## Conjunto importado do Vector Parts.zip
+
+O botão **Fallen** monta o conjunto completo do pacote enviado: cabelo, três
+expressões, corpo, dois braços, duas mãos, duas pernas, espada e efeito. Cada
+opção também pode ser escolhida pelas setas e combinada com os itens anteriores.
+Em Efeito, o seletor Traço do ataque escolhe o desenho do arco, independentemente
+da cor. As áreas descobertas do peito e mãos acompanham a pele; luvas e armadura
+mantêm seus materiais.
+
+- `assets/imported/forest-variant/`: os 13 PNGs e o SCML originais, sem alterações.
+- `assets/packs/fallen/`: peças registradas no rig, com os contornos normalizados.
+- `assets/faces/fallen/`: expressões registradas no plano facial do criador.
+- `assets/masks/packs/fallen/` e `assets/masks/faces/fallen/`: máscaras de materiais.
+- `prepare_fallen.py`: preparação reproduzível, também chamada por `prepare_materials.py`.
+
+Os keyframes das 17 ações são idênticos aos do rig existente. A ordem de expressões
+foi preservada: Face 01 normal, Face 02 piscar e Face 03 dano. O pacote exportado
+continua contendo 13 peças e 207 frames. As peças originais e o SCML permanecem
+sujeitos à licença de seu pacote de origem.
+
+Testes: `python -m unittest discover -s character-creator/tests -v` e
+`python character-creator/tests/check_fallen.py` (Playwright e Chromium).

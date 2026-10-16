@@ -1,15 +1,15 @@
 const DATA=JSON.parse(document.getElementById('catalog').textContent);
 const canvas=document.getElementById('preview'),status=document.getElementById('status');
 const defaultColors={skin:'#dbbe9a',hair:'#40505a',brows:'#734b2e',eyes:'#307d60'};
-const defaults={head:0,face:0,outfit:0,accessory:0,effect:0,colors:{...defaultColors}};
+const defaults={head:0,face:0,outfit:0,accessory:0,effect:0,effectShape:0,colors:{...defaultColors}};
 let state={...defaults},view='assembled',playing=true,time=0,last=performance.now(),busy=false,cancelled=false;
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
- {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.']]},
- {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.']]},
- {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.']]},
+ {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.']]},
+ {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.'],['Fallen · rosto','As três expressões originais do pacote enviado.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.']]},
+ {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
 const animationLabels={'Idle':'Em repouso','Idle Blinking':'Repouso · piscar','Walking':'Caminhando','Running':'Correndo','Slashing':'Ataque básico','Throwing':'Arremesso','Kicking':'Chute','Run Slashing':'Corrida + ataque','Run Throwing':'Corrida + arremesso','Sliding':'Deslizando','Jump Start':'Início do salto','Jump Loop':'No ar','Slashing in The Air':'Ataque no ar','Throwing in The Air':'Arremesso no ar','Falling Down':'Caindo','Hurt':'Recebendo dano','Dying':'Morte'};
@@ -26,7 +26,7 @@ function selectedSCML(){
  return new XMLSerializer().serializeToString(doc);
 }
 function tintedEffect(){
- const source=registry['original/SlashFX.png'],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
+ const source=registry[state.effectShape===1?'packs/fallen/SlashFX.png':'original/SlashFX.png'],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
  const image=ctx.getImageData(0,0,c.width,c.height),d=image.data,hex=effects[state.effect][1].slice(1),rgb=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16));
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const lum=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,white=Math.max(0,(lum-.72)/.28)*.65;for(let k=0;k<3;k++)d[i+k]=Math.round(rgb[k]*(.6+.4*lum)*(1-white)+255*white)}
  ctx.putImageData(image,0,0);return c;
@@ -56,6 +56,10 @@ function applyLook(index){
  const looks=[{head:1,face:1,outfit:3,colors:{skin:'#d4b890',hair:'#414b4d',brows:'#333332',eyes:'#878559'}},{head:3,face:2,outfit:4,colors:{skin:'#d9bd9c',hair:'#7bb7de',brows:'#6689a0',eyes:'#809dba'}},{head:4,face:3,outfit:5,colors:{skin:'#e5c9a6',hair:'#edc34c',brows:'#a48639',eyes:'#869bb1'}}];
  state={...state,...structuredClone(looks[index])};update();
 }
+function applyFallen(){
+ state={head:5,face:5,outfit:6,accessory:4,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#a59d98',brows:'#1b1a18',eyes:'#92bed9'}};
+ select.value='Idle';time=0;update();status.textContent='Conjunto Fallen completo, com todas as peças do ZIP.';
+}
 function buildColorControls(){
  const section=document.getElementById('colors');
  for(const [key,label]of Object.entries({skin:'Pele',hair:'Cabelo',brows:'Sobrancelhas',eyes:'Olhos'})){
@@ -68,8 +72,8 @@ function buildColorControls(){
 // Each hairstyle retains its own original outline and integrated ear.
 // Register the complete drawing to the former silver head's facial proportions.
 function assembledHead(){
- const name=['bald','short','silver','blue','blond'][state.head];
- const image=colored('heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
+ const name=['bald','short','silver','blue','blond','fallen'][state.head];
+ const image=colored(state.head===5?'packs/fallen/Head.png':'heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
  const placement=DATA.headRegistration.styles[name];
  const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';
  ctx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);
@@ -80,23 +84,26 @@ function refreshTextures(){
  images['1']=assembledHead();
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
-  else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});
+  else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});
  }
  if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
- if(state.outfit>=3){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
- images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png'][state.accessory]]:makeCanvas(400,128);
+ if(state.outfit>=3&&state.outfit<=5){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
+ if(state.outfit===6)for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/fallen/'+DATA.rig.files[id].name,{skin:state.colors.skin});
+ images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png'][state.accessory]]:makeCanvas(400,128);
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
 }
 function validState(value){
  if(!value||typeof value!=='object')throw Error('Arquivo de escolhas inválido.');
  for(const def of definitions)if(!Number.isInteger(value[def.id])||value[def.id]<0||value[def.id]>=def.options.length)throw Error('Escolha inválida: '+def.label);
  const colors={...defaultColors,...value.colors};for(const key of Object.keys(defaultColors))if(!/^#[0-9a-f]{6}$/i.test(colors[key]))throw Error('Cor inválida: '+key);
- return {...Object.fromEntries(definitions.map(def=>[def.id,value[def.id]])),colors};
+ const effectShape=value.effectShape??0;if(!Number.isInteger(effectShape)||effectShape<0||effectShape>1)throw Error('Forma de efeito inválida.');
+ return {...Object.fromEntries(definitions.map(def=>[def.id,value[def.id]])),colors,effectShape};
 }
-function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify({...state,headOptionsVersion:2}))}catch{}}
+function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify({...state,headOptionsVersion:2,faceOptionsVersion:2}))}catch{}}
 function update(){
  refreshTextures();persist();
+ const shape=document.getElementById('effectShape');if(shape)shape.value=String(state.effectShape??0);
  document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
  for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
  renderExpressionChoices();
@@ -117,11 +124,15 @@ function previewExpression(index){
  select.value=['Idle','Idle Blinking','Hurt'][index];time=[0,500,0][index];
  if(playing)document.getElementById('playPause').click();renderExpressionChoices();render();
 }
+function expressionThumbnail(file){
+ if(state.face!==5)return file;
+ return {'Face 02.png':'Face 03.png','Face 03.png':'Face 02.png'}[file]||file;
+}
 function renderExpressionChoices(){
  const row=document.getElementById('expressionChoices');if(!row)return;row.replaceChildren();row.hidden=!state.face;if(!state.face)return;
  for(const [index,[name,file]] of [['Aberto','Face 01.png'],['Piscar','Face 03.png'],['Dano','Face 02.png']].entries()){
   const button=document.createElement('button');button.className='expressionChoice';button.setAttribute('aria-label','Ver expressão: '+name);button.setAttribute('aria-pressed',String(!playing&&select.value===['Idle','Idle Blinking','Hurt'][index]));
-  const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+file];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
+  const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+expressionThumbnail(file)];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
  }
 }
 function setupEditorTabs(){
@@ -151,6 +162,7 @@ function buildControls(){
   row.append(previous,name,next);const desc=document.createElement('p');desc.className='description';section.append(top,row,desc);
   if(def.id==='effect'){const swatches=document.createElement('div');swatches.className='swatches';effects.forEach(([name,color],i)=>{const button=document.createElement('button');button.className='swatch';button.style.setProperty('--swatch',color);button.setAttribute('aria-label',name);button.onclick=()=>{state.effect=i;select.value='Slashing';time=200;setView('assembled');update()};swatches.append(button)});section.append(swatches)}
   if(def.id==='face'){const row=document.createElement('div');row.id='expressionChoices';row.className='expressionChoices';row.setAttribute('aria-label','Expressões do rosto');section.append(row)}
+  if(def.id==='effect'){const label=document.createElement('label');label.className='effectShape';label.textContent='Traço do ataque';const shape=document.createElement('select');shape.id='effectShape';shape.setAttribute('aria-label','Traço do ataque');shape.add(new Option('Arco Ranger','0'));shape.add(new Option('Arco Fallen','1'));shape.onchange=()=>{state.effectShape=Number(shape.value);select.value='Slashing';time=200;setView('assembled');update()};label.append(shape);section.append(label)}
   document.getElementById('options').append(section);
  }
 }
@@ -206,13 +218,13 @@ document.getElementById('assembledView').onclick=()=>setView('assembled');docume
 document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação');renderExpressionChoices()};
 select.onchange=()=>{time=0;renderExpressionChoices();render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:2,face:1,outfit:2,accessory:1,effect:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
+document.getElementById('example').onclick=()=>{state={head:2,face:1,outfit:2,accessory:1,effect:0,effectShape:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
 async function init(){
  try{
   await Promise.all(Object.entries(DATA.images).map(async([key,url])=>{const image=new Image();image.src=url;await image.decode();registry[key]=image}));
-  try{const saved=localStorage.getItem('chibi-creator-v1');if(saved){const previous=JSON.parse(saved);if(previous.headOptionsVersion!==2)previous.head=[0,1,2,0,3,4][previous.head]??0;if(previous.face===5||previous.face===6)previous.face=1;state=validState(previous)}}catch{}
+  try{const saved=localStorage.getItem('chibi-creator-v1');if(saved){const previous=JSON.parse(saved);if(previous.headOptionsVersion!==2)previous.head=[0,1,2,0,3,4][previous.head]??0;if(previous.faceOptionsVersion!==2&&(previous.face===5||previous.face===6))previous.face=1;state=validState(previous)}}catch{}
   buildControls();buildColorControls();setupEditorTabs();update();document.getElementById('loading').hidden=true;window.creatorReady=true;requestAnimationFrame(tick);
  }catch(error){document.getElementById('loading').textContent='Não foi possível carregar as peças: '+error.message}
 }

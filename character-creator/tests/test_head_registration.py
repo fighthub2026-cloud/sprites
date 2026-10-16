@@ -13,8 +13,9 @@ class HeadRegistration(unittest.TestCase):
   target=np.array(Image.open(ROOT/'assets/masks/heads/silver-skin.png'))[:,:,3]>0;ref=np.flatnonzero(target[row])
   for name,placement in config['styles'].items():
    with self.subTest(head=name):
-    source=np.array(Image.open(ROOT/'assets/masks/heads'/f'{name}-skin.png'))[:,:,3]>0;xs=np.flatnonzero(source[row]);scale=placement['scaleX'];offset=placement['offsetX']
+    mask_path=ROOT/'assets/masks/packs/fallen/Head-skin.png' if name=='fallen' else ROOT/'assets/masks/heads'/f'{name}-skin.png'
+    source=np.array(Image.open(mask_path))[:,:,3]>0;xs=np.flatnonzero(source[row]);scale=placement['scaleX'];offset=placement['offsetX']
     self.assertAlmostEqual(xs[0]*scale+offset,ref[0]);self.assertAlmostEqual(xs[-1]*scale+offset,ref[-1])
     self.assertEqual(placement['scaleY'],1);self.assertEqual(placement['offsetY'],0)
-    l,t,r,b=Image.open(ROOT/'assets/heads'/f'{name}.png').getbbox();self.assertGreaterEqual(l*scale+offset,0);self.assertLessEqual(r*scale+offset,480)
+    l,t,r,b=Image.open(ROOT/'assets/packs/fallen/Head.png' if name=='fallen' else ROOT/'assets/heads'/f'{name}.png').getbbox();self.assertGreaterEqual(l*scale+offset,0);self.assertLessEqual(r*scale+offset,480)
 if __name__=='__main__':unittest.main()
