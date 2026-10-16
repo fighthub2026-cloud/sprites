@@ -20,7 +20,7 @@ with sync_playwright() as p:
   page.evaluate('name=>activateCategory(name)',category);page.locator('[data-option='+category+'] .arrow').last.click();assert page.evaluate('name=>state[name]',category)==0;page.locator('[data-option='+category+'] .arrow').first.click();assert page.evaluate('name=>state[name]',category)==last
  result=page.evaluate('''()=>{
  const read=image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return [...c.getContext('2d').getImageData(0,0,c.width,c.height).data]};
- const changed=(a,b)=>a.some((v,i)=>v!==b[i]);applyFallen();const before=Object.fromEntries(['0','1','3','6'].map(id=>[id,read(player.images[id])]));state.colors.skin='#472e27';update();
+ const changed=(a,b)=>a.some((v,i)=>v!==b[i]);applyFallen();const nativeHead=read(registry['imported/forest-variant/Head.png']),head=read(player.images['1']);if(nativeHead.some((v,i)=>i%4===3&&v!==head[i]))throw Error('Native head proportions changed');const before=Object.fromEntries(['0','1','3','6'].map(id=>[id,read(player.images[id])]));state.colors.skin='#472e27';update();
  const skin=['0','1','3','6'].every(id=>changed(before[id],read(player.images[id])));
  const hand=read(player.images['6']),head=read(player.images['1']);state.colors.hair='#277de0';update();const independent=changed(head,read(player.images['1']))&&!changed(hand,read(player.images['6']));
  let animations=0;const c=makeCanvas(900,900);for(const name of Object.keys(DATA.rig.frameCounts)){player.draw(c,name,100);const d=c.getContext('2d').getImageData(0,0,900,900).data;if(!d.some((v,i)=>i%4===3&&v>128))throw Error('Empty '+name);animations++}

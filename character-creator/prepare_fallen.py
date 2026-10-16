@@ -70,8 +70,9 @@ def main():
    d[region,:3]=base;m=np.zeros_like(d);m[:,:,:3]=128;m[:,:,3]=np.where(region,d[:,:,3],0)
    path=ROOT/'assets/masks/faces/fallen'/(Path(target).stem+'-'+material+'.png');path.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(m).save(path)
   Image.fromarray(d).save(faces/target)
- config=json.loads((ROOT/'head-registration.json').read_text());target=np.array(Image.open(ROOT/'assets/masks/heads/silver-skin.png'))[:,:,3]>0;src=np.array(Image.open(ROOT/'assets/masks/packs/fallen/Head-skin.png'))[:,:,3]>0
- a=np.flatnonzero(target[390]);b=np.flatnonzero(src[390]);scale=float((a[-1]-a[0])/(b[-1]-b[0]));offset=float(a[0]-b[0]*scale)
- config['styles']['fallen']={'scaleX':scale,'offsetX':offset,'scaleY':1,'offsetY':0};(ROOT/'head-registration.json').write_text(json.dumps(config,indent=2)+'\n')
+ # Preserve the native head aspect ratio and registration from the supplied rig.
+ config=json.loads((ROOT/'head-registration.json').read_text())
+ config['styles']['fallen']={'scaleX':1,'offsetX':0,'scaleY':1,'offsetY':0}
+ (ROOT/'head-registration.json').write_text(json.dumps(config,indent=2)+'\n')
  print('Imported 13 textures, 3 registered expressions and skin/hair/eye/brow masks.')
 if __name__=='__main__':main()

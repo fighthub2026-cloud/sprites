@@ -148,3 +148,8 @@ na expressão aberta, centrado em (163, 118) na textura de 320 × 240. Olhos,
 sobrancelhas, nariz e boca foram ampliados juntos, incluindo as expressões
 fechadas; o tamanho da cabeça, cabelos e corpos permanece inalterado. O Fallen
 usa a escala facial nativa do ZIP. As máscaras acompanham o novo tamanho.
+
+A cabeça Fallen usa o tamanho, a posição e a proporção exatos do ZIP original:
+escala horizontal e vertical iguais a 1, sem alongamento ou alargamento. O teste
+do conjunto compara a silhueta montada pixel a pixel com o alfa do Head.png
+original, além de validar a exportação.
