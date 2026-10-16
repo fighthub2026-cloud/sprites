@@ -10,6 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'assets/imported/guardian'
 
 class GuardianParts(unittest.TestCase):
+    def test_hair_mask_covers_both_locks_and_excludes_helmet(self):
+        mask=np.array(Image.open(ROOT/'assets/masks/packs/guardian/Head-hair.png'))[:,:,3]
+        self.assertFalse(np.any(mask[:240]))
+        self.assertGreater(np.count_nonzero(mask[240:430,:200]),7000)
+        self.assertGreater(np.count_nonzero(mask[280:370,390:430]),600)
+        self.assertEqual(mask[270,100],0) # lower metal plate beside the left lock
+        self.assertEqual(mask[200,200],0)
+
     def test_all_pngs_preserve_dimensions_and_alpha(self):
         for source in SOURCE.glob('*.png'):
             with self.subTest(part=source.name):

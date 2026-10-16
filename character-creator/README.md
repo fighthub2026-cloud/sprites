@@ -314,3 +314,10 @@ A cabeça do Mago roxo foi retirada das opções do catálogo. O botão Mago rox
 agora preserva o cabelo/cabeça escolhido e aplica apenas o conjunto do traje.
 Escolhas antigas com cabeça 8 migram para Cabelo prateado (2), mantendo as
 outras seleções salvas. A túnica, os braços e os membros Fallen permanecem.
+
+
+Na Valquíria, a máscara de cabelo abrange somente as duas mechas expostas,
+à esquerda do rosto e na faixa estreita à direita. O capacete, placas e adornos
+mantêm as cores originais mesmo quando a cor de cabelo é alterada. A separação
+usa os componentes isolados pelo contorno nativo, incluindo a antialias das
+mechas, em vez de recolorir toda a paleta cinza compartilhada com o metal.

@@ -71,6 +71,18 @@ def main():
     weapon.save(ROOT/'assets/accessories/GuardianTrident.png')
     material_masks(dest/'Head.png',[('skin',SKIN,[128,100,112]),('hair',METAL,[128,96,138,134,88,116]),
                                    (None,np.array([[230,157,151]],float),[128])])
+    # Hair and helmet share the source grey palette. Their ink boundaries
+    # separate the two exposed locks, so only those regions are recolorable.
+    hair_path=ROOT/'assets/masks/packs/guardian/Head-hair.png'
+    hair=np.array(Image.open(hair_path));components,_=label(hair[:,:,3]>0)
+    locks=components[340,120],components[320,404]
+    assert all(locks), 'Both native hair locks must be found'
+    exposed=np.isin(components,locks)
+    from scipy.ndimage import distance_transform_edt
+    yy,_=np.indices(exposed.shape)
+    # Retain nearby antialias fragments without crossing the thick helmet rim.
+    exposed=(distance_transform_edt(~exposed)<=2)&(yy>=240)
+    hair[~exposed,3]=0;Image.fromarray(hair).save(hair_path)
     material_masks(dest/'Body.png',[('skin',SKIN,[128,100,112]),(None,METAL,[128]*len(METAL))])
     faces = ROOT/'assets/faces/guardian';faces.mkdir(parents=True,exist_ok=True)
     for name in ['Face 01.png','Face 02.png','Face 03.png']:
