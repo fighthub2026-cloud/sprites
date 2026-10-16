@@ -27,4 +27,14 @@ class ImportedParts(unittest.TestCase):
    if name=='Head':
     hair=np.array(Image.open(ROOT/'assets/masks/packs/fallen/Head-hair.png'))
     self.assertFalse(np.any((hair[:,:,3]>0)&(m[:,:,3]>0)))
+ def test_open_brow_mask_fills_holes_and_preserves_original_ink(self):
+  sx=204/232;sy=129/152;tx=60-47*sx;ty=53-42*sy
+  original=np.array(Image.open(SOURCE/'Face 01.png').convert('RGBA').transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1/sy,-ty/sy),Image.Resampling.BICUBIC))
+  actual=np.array(Image.open(ROOT/'assets/faces/fallen/Face 01.png').convert('RGBA'))
+  mask=np.array(Image.open(ROOT/'assets/masks/faces/fallen/Face 01-brows.png'))[:,:,3]>0
+  self.assertGreater(np.count_nonzero(mask),1000)
+  self.assertTrue(np.all(original[:,:,3][mask]<=128))
+  self.assertTrue(np.all(actual[:,:,3][mask]==255))
+  ink=(original[:,:,:3].max(2)<43)&(original[:,:,3]>250)
+  self.assertFalse(np.any(ink&mask));self.assertTrue(np.all(actual[ink,:3]==[27,26,24]))
 if __name__=='__main__':unittest.main()

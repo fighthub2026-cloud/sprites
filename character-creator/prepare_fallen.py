@@ -2,7 +2,7 @@
 from pathlib import Path
 from PIL import Image
 import numpy as np
-from scipy.ndimage import distance_transform_edt
+from scipy.ndimage import distance_transform_edt,binary_fill_holes,label,find_objects
 import json
 ROOT=Path(__file__).resolve().parent
 SOURCE=ROOT/'assets/imported/forest-variant'
@@ -42,10 +42,29 @@ def main():
   im=Image.open(SOURCE/source).convert('RGBA').transform((320,240),Image.Transform.AFFINE,(1/sx,0,-tx/sx,0,1/sy,-ty/sy),Image.Resampling.BICUBIC)
   d=np.array(im);r,g,b=d[:,:,:3].astype(float).transpose(2,0,1);opaque=d[:,:,3]>0
   ink=opaque&(np.maximum.reduce([r,g,b])<43);d[ink,:3]=INK.astype('uint8')
-  # Fill within the authentic upper eyebrow band; retain its charcoal rim.
-  dark=opaque&(np.maximum.reduce([r,g,b])<75);dark[107:]=False;brows=distance_transform_edt(dark)>1.5
+  # The open eyebrow has a transparent enclosed interior. That is the fill;
+  # the dark pixels surrounding it are the contour and must stay charcoal.
+  if target=='Face 01.png':
+   alpha=d[:,:,3]>128;holes=binary_fill_holes(alpha)&~alpha
+   labels,_=label(holes);brows=np.zeros_like(alpha)
+   for component,box in enumerate(find_objects(labels)):
+    if box is not None and box[0].stop<=110 and np.count_nonzero(labels[box]==component+1)>20:
+     brows|=labels==component+1
+   d[brows,3]=255
+  else:
+   # Closed expressions have a solid eyebrow stroke. Follow only its upper
+   # run in each column, never the eye/lash below it or a horizontal y cutoff.
+   dark=(d[:,:,3]>128)&(np.maximum.reduce([r,g,b])<75)
+   upper=np.zeros_like(dark)
+   for x in range(60,265):
+    rows=np.flatnonzero(dark[53:135,x])+53
+    if not len(rows) or rows[0]>125:continue
+    start=int(rows[0]);end=start
+    while end<160 and dark[end,x]:end+=1
+    upper[start:end,x]=True
+   brows=distance_transform_edt(upper)>2.5
   eyes=opaque&(b>r*1.2)&(g>r*1.08)&(b>g*1.04)&(b>65)&~brows
-  for material,region,base in [('brows',brows,[27,26,24]),('eyes',eyes,[146,190,217])]:
+  for material,region,base in [('brows',brows,[165,157,152]),('eyes',eyes,[146,190,217])]:
    d[region,:3]=base;m=np.zeros_like(d);m[:,:,:3]=128;m[:,:,3]=np.where(region,d[:,:,3],0)
    path=ROOT/'assets/masks/faces/fallen'/(Path(target).stem+'-'+material+'.png');path.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(m).save(path)
   Image.fromarray(d).save(faces/target)

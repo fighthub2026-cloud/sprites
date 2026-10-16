@@ -57,7 +57,7 @@ function applyLook(index){
  state={...state,...structuredClone(looks[index])};update();
 }
 function applyFallen(){
- state={head:5,face:5,outfit:6,accessory:4,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#a59d98',brows:'#1b1a18',eyes:'#92bed9'}};
+ state={head:5,face:5,outfit:6,accessory:4,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#a59d98',brows:'#a59d98',eyes:'#92bed9'}};
  select.value='Idle';time=0;update();status.textContent='Conjunto Fallen completo, com todas as peças do ZIP.';
 }
 function buildColorControls(){

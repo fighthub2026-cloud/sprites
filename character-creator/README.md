@@ -138,3 +138,7 @@ sujeitos à licença de seu pacote de origem.
 
 Testes: `python -m unittest discover -s character-creator/tests -v` e
 `python character-creator/tests/check_fallen.py` (Playwright e Chromium).
+
+No rosto Fallen, a máscara da sobrancelha aberta cobre somente o interior
+fechado pelo contorno original. Nas expressões fechadas, acompanha o interior
+do traço superior e preserva uma borda preta, sem atingir o olho ou os cílios.
