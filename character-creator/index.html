@@ -148,10 +148,18 @@ select.value='Idle';
 
 function makeCanvas(width,height){const c=document.createElement('canvas');c.width=width;c.height=height;return c}
 // Keep native weapon bones, pivots, visibility and keyframes in every action.
-function selectedRig(){return structuredClone(state.shield?DATA.shieldRig:DATA.rig)}
+const effectRecoil=32;
+function selectedRig(){
+ const rig=structuredClone(state.shield?DATA.shieldRig:DATA.rig);
+ for(const animation of rig.animations)for(const timeline of Object.values(animation.timelines))for(const key of timeline){
+  if(key.transform.file==='10')key.transform.x=Number(key.transform.x??0)-effectRecoil;
+ }
+ return rig;
+}
 function selectedSCML(){
  const doc=new DOMParser().parseFromString(state.shield?DATA.shieldSCML:DATA.scml,'application/xml');
  doc.querySelector('entity').setAttribute('name','CustomAvatar');
+ doc.querySelectorAll('timeline key object[file="10"]').forEach(effect=>effect.setAttribute('x',Number(effect.getAttribute('x')??0)-effectRecoil));
  return new XMLSerializer().serializeToString(doc);
 }
 function tintedEffect(){
