@@ -17,6 +17,8 @@ class GuardianParts(unittest.TestCase):
         self.assertGreater(np.count_nonzero(mask[280:370,390:430]),600)
         self.assertEqual(mask[270,100],0) # lower metal plate beside the left lock
         self.assertEqual(mask[200,200],0)
+        self.assertGreater(mask[300,150],0) # lighter hair band next to the face
+        self.assertGreater(mask[300,155],0) # bright strand highlight
 
     def test_all_pngs_preserve_dimensions_and_alpha(self):
         for source in SOURCE.glob('*.png'):

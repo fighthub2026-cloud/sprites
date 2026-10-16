@@ -69,7 +69,8 @@ def main():
     trident = trident.crop(trident.getbbox());trident.thumbnail((344,118),Image.Resampling.LANCZOS)
     weapon = Image.new('RGBA',(400,128));weapon.alpha_composite(trident,(28,(128-trident.height)//2))
     weapon.save(ROOT/'assets/accessories/GuardianTrident.png')
-    material_masks(dest/'Head.png',[('skin',SKIN,[128,100,112]),('hair',METAL,[128,96,138,134,88,116]),
+    hair_palette=np.vstack([METAL,[[182,176,162],[219,216,209]]])
+    material_masks(dest/'Head.png',[('skin',SKIN,[128,100,112]),('hair',hair_palette,[128,96,138,134,88,116,134,142]),
                                    (None,np.array([[230,157,151]],float),[128])])
     # Hair and helmet share the source grey palette. Their ink boundaries
     # separate the two exposed locks, so only those regions are recolorable.
