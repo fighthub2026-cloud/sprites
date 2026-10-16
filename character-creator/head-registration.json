@@ -1,0 +1,36 @@
+{
+  "reference": "silver",
+  "landmarkRow": 390,
+  "styles": {
+    "bald": {
+      "scaleX": 0.9333333333333333,
+      "offsetX": 11.133333333333326,
+      "scaleY": 1,
+      "offsetY": 0
+    },
+    "short": {
+      "scaleX": 0.9430051813471503,
+      "offsetX": 9.373056994818654,
+      "scaleY": 1,
+      "offsetY": 0
+    },
+    "silver": {
+      "scaleX": 1.0,
+      "offsetX": 0.0,
+      "scaleY": 1,
+      "offsetY": 0
+    },
+    "blue": {
+      "scaleX": 0.9891304347826086,
+      "offsetX": -2.9782608695652186,
+      "scaleY": 1,
+      "offsetY": 0
+    },
+    "blond": {
+      "scaleX": 1.0340909090909092,
+      "offsetX": -23.75000000000003,
+      "scaleY": 1,
+      "offsetY": 0
+    }
+  }
+}

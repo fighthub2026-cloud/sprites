@@ -65,19 +65,15 @@ function buildColorControls(){
   input.oninput=()=>{state.colors={...state.colors,[key]:input.value};update()};row.append(text,output,input);section.append(row);
  }
 }
-// A single anatomical base fixes the face outline, ear, jaw and rig registration.
+// Each hairstyle retains its own original outline and integrated ear.
+// Register the complete drawing to the former silver head's facial proportions.
 function assembledHead(){
- const base=colored('heads/bald.png',{skin:state.colors.skin});
- if(!state.head)return base;
- const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.drawImage(base,0,0);
- // The scalp above the common forehead is covered by the hairstyle silhouette.
- // Removing the crown avoids a bald outline protruding between hair tufts.
- const style=['','short','silver','blue','blond'][state.head];
- ctx.globalCompositeOperation='destination-in';ctx.drawImage(registry['hair/'+style+'-base-mask.png'],0,0);ctx.globalCompositeOperation='source-over';
- const key='hair/'+style+'.png';
- ctx.drawImage(colored(key,{hair:state.colors.hair}),0,0);
- // The same anatomical ear sits in front of every hairstyle.
- ctx.save();ctx.beginPath();ctx.ellipse(115,317,51,62,0,0,Math.PI*2);ctx.clip();ctx.drawImage(base,0,0);ctx.restore();return c;
+ const name=['bald','short','silver','blue','blond'][state.head];
+ const image=colored('heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
+ const placement=DATA.headRegistration.styles[name];
+ const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';
+ ctx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);
+ ctx.drawImage(image,0,0);return c;
 }
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];

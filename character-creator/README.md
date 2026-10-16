@@ -94,16 +94,15 @@ Os testes `test_skin_masks.py` verificam cobertura, separação dos materiais e
 preservação dos contornos.
 
 
-## Cabeça única, cabelos separados
+## Proporções pela versão prateada
 
-Todas as opções usam a mesma base anatômica `assets/heads/bald.png`, com os mesmos
-contornos de mandíbula, queixo e orelha. `assets/hair/` contém apenas as quatro
-camadas de cabelo e as máscaras que ocultam o couro cabeludo sob cada penteado.
-As feições mantêm o mesmo tamanho, posição e rig. A orelha comum fica à frente do
-cabelo. A peça `Head.png` é composta antes de animar ou exportar, por isso o pacote
-continua com 13 peças e funciona no SCML original.
+Cada opção conserva o desenho completo original de cabelo, cabeça e orelha,
+incluindo seus contornos. Nos cortes curtos, a orelha aparece normalmente; nos
+cortes que a cobrem, a sobreposição e o acabamento seguem as mechas. A versão prateada é a
+referência de proporção e permanece sem transformação. `head-registration.json`
+alinha a largura e a posição da parte inferior do rosto das outras opções à
+referência, sem recortar ou redesenhar os cabelos. Feições, expressões e pivôs
+mantêm o mesmo registro. O PNG `Head.png` exportado já inclui essa montagem.
 
-`prepare_heads.py` prepara essas camadas a partir das máscaras dos materiais;
-`prepare_materials.py` já executa esse passo. Para verificar a anatomia em todas
-as opções com três cores de pele e conferir o ZIP, execute
-`python character-creator/tests/check_shared_head.py` (Playwright e Chromium).
+A base careca ampliada e as camadas de cabelo extraídas da versão anterior foram
+removidas. Teste: `python -m unittest discover -s character-creator/tests -v`.
