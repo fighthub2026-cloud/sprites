@@ -65,9 +65,23 @@ function buildColorControls(){
   input.oninput=()=>{state.colors={...state.colors,[key]:input.value};update()};row.append(text,output,input);section.append(row);
  }
 }
+// A single anatomical base fixes the face outline, ear, jaw and rig registration.
+function assembledHead(){
+ const base=colored('heads/bald.png',{skin:state.colors.skin});
+ if(!state.head)return base;
+ const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.drawImage(base,0,0);
+ // The scalp above the common forehead is covered by the hairstyle silhouette.
+ // Removing the crown avoids a bald outline protruding between hair tufts.
+ const style=['','short','silver','blue','blond'][state.head];
+ ctx.globalCompositeOperation='destination-in';ctx.drawImage(registry['hair/'+style+'-base-mask.png'],0,0);ctx.globalCompositeOperation='source-over';
+ const key='hair/'+style+'.png';
+ ctx.drawImage(colored(key,{hair:state.colors.hair}),0,0);
+ // The same anatomical ear sits in front of every hairstyle.
+ ctx.save();ctx.beginPath();ctx.ellipse(115,317,51,62,0,0,Math.PI*2);ctx.clip();ctx.drawImage(base,0,0);ctx.restore();return c;
+}
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];
- images['1']=colored(['heads/bald.png','heads/short.png','heads/silver.png','heads/blue.png','heads/blond.png'][state.head],{skin:state.colors.skin,hair:state.colors.hair});
+ images['1']=assembledHead();
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
   else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});

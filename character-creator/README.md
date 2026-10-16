@@ -92,3 +92,18 @@ As máscaras de cabelo e pele são separadas e não se sobrepõem. O processamen
 não reaproveita a cor original nas bordas nem reproduz seu ruído no preenchimento.
 Os testes `test_skin_masks.py` verificam cobertura, separação dos materiais e
 preservação dos contornos.
+
+
+## Cabeça única, cabelos separados
+
+Todas as opções usam a mesma base anatômica `assets/heads/bald.png`, com os mesmos
+contornos de mandíbula, queixo e orelha. `assets/hair/` contém apenas as quatro
+camadas de cabelo e as máscaras que ocultam o couro cabeludo sob cada penteado.
+As feições mantêm o mesmo tamanho, posição e rig. A orelha comum fica à frente do
+cabelo. A peça `Head.png` é composta antes de animar ou exportar, por isso o pacote
+continua com 13 peças e funciona no SCML original.
+
+`prepare_heads.py` prepara essas camadas a partir das máscaras dos materiais;
+`prepare_materials.py` já executa esse passo. Para verificar a anatomia em todas
+as opções com três cores de pele e conferir o ZIP, execute
+`python character-creator/tests/check_shared_head.py` (Playwright e Chromium).
