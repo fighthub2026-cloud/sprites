@@ -102,4 +102,6 @@ def main():
  expressions()
  from prepare_fallen import main as fallen
  fallen()
+ from prepare_spectral import main as spectral
+ spectral()
 if __name__=='__main__':main()

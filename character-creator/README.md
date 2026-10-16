@@ -7,14 +7,14 @@ externos. Também pode ser servido como página estática.
 O personagem começa careca, sem rosto, com roupa básica e sem acessório. As setinhas
 alteram independentemente cabeça/cabelo, rosto, corpo/roupa, acessório e cor do efeito.
 
-- 6 opções de cabeça: careca, curto preto, prateado, azul, loiro e Fallen.
-- 6 opções de rosto: Sem rosto, Severo, Determinado, Resoluto, Ranger e Fallen.
-- 7 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão, peitoral de aço e armadura Fallen.
+- 7 opções de cabeça: careca, curto preto, prateado, azul, loiro, Fallen e capuz Espectral.
+- 7 opções de rosto: Sem rosto, Severo, Determinado, Resoluto, Ranger, Fallen e Espectral.
+- 8 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão, peitoral de aço, armadura Fallen e túnica Espectral.
 - Seletores independentes de pele, cabelo, sobrancelhas e olhos. Máscaras de materiais preservam contornos e convertem sombras e brilhos em sobreposições neutras.
 - Pele compartilhada por cabeça e mãos descobertas dos trajes Colete e Peitoral; as luvas não são recoloridas.
 - Três combinações prontas inspiradas nas referências (Couro, Azul e Loiro).
-- 5 opções de acessório, incluindo mãos livres e a espada Fallen.
-- 6 cores e 2 traços para o efeito de ataque (Ranger e Fallen).
+- 6 opções de acessório, incluindo mãos livres, espada Fallen e cajado Espectral.
+- 6 cores e 3 traços para o efeito de ataque (Ranger, Fallen e Espectral).
 - Prévia montada e visão das 13 peças.
 - 17 animações, pausa e ajuste de velocidade.
 - PNG transparente de 900 × 900, configuração JSON e exportação completa em ZIP.
@@ -143,7 +143,7 @@ No rosto Fallen, a máscara da sobrancelha aberta cobre somente o interior
 fechado pelo contorno original. Nas expressões de piscar e dano do Fallen, a sobrancelha fica totalmente preta
 como os contornos, sem responder ao seletor de cor.
 
-Todas as opções de rosto agora ocupam um plano de 232 × 152 px para as feições
+Os rostos existentes foram ampliados para um plano de 232 × 152 px para as feições
 na expressão aberta, centrado em (163, 118) na textura de 320 × 240. Olhos,
 sobrancelhas, nariz e boca foram ampliados juntos, incluindo as expressões
 fechadas; o tamanho da cabeça, cabelos e corpos permanece inalterado. O Fallen
@@ -159,3 +159,25 @@ recortadas pela área de pele exposta da cabeça escolhida, no mesmo sistema
 de coordenadas do rig. Assim a sobrancelha não invade as mechas. O recorte
 é aplicado também aos PNGs exportados, mantendo a montagem SCML com 13 peças.
 Verificação visual automatizada: `python character-creator/tests/check_hair_occlusion.py`.
+
+
+## Conjunto Espectral — Vector Parts (2).zip
+
+O botão **Espectro** monta o novo conjunto completo. As setas também permitem
+selecionar separadamente o capuz, rosto, túnica com asas, cajado e traço do ataque.
+Os braços, mãos e pernas acompanham o corpo. As 13 peças e o rig originais estão
+preservados em `assets/imported/vector-parts-2/`; as versões preparadas ficam em
+`assets/packs/spectral/`, `assets/faces/spectral/` e suas pastas de máscaras.
+
+`prepare_spectral.py` prepara o conjunto e é chamado por `prepare_materials.py`.
+A cabeça e as feições usam escala e posição nativas, sem achatamento. Pele altera
+rosto e áreas descobertas das mãos; roupa, asas e luvas mantêm seus materiais.
+O seletor Cabelo / capuz recolore o capuz com sombras e brilhos. Na expressão
+aberta, a cor das sobrancelhas altera só o preenchimento, preservando o contorno.
+Piscar e dano mantêm sobrancelhas inteiramente pretas, seguindo o padrão Fallen.
+O capuz oculta feições que invadiriam suas mechas, inclusive nos arquivos exportados.
+
+Testes do conjunto: `python character-creator/tests/check_spectral.py` e
+`python -m unittest discover -s character-creator/tests -v`. A verificação de
+sobreposição cobre 108 combinações de cabelos e expressões. A interface continua
+em uma tela; o novo pacote também exporta 13 peças e 207 frames em 17 ações.

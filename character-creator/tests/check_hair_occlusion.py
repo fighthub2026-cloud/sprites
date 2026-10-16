@@ -14,7 +14,7 @@ with sync_playwright() as p:
  const render=(images,name,t)=>{const test=new SpriterPlayer();test.rig=DATA.rig;test.images=images;const c=makeCanvas(450,450);test.draw(c,name,t);return c.getContext('2d').getImageData(0,0,450,450).data};
  const blank=makeCanvas(1,1);let combinations=0,hairPixels=0;
  state.colors.hair='#2752e0';state.colors.brows='#f43c19';state.colors.eyes='#33a057';
- for(let head=1;head<6;head++)for(let face=1;face<6;face++){
+ for(let head=1;head<7;head++)for(let face=1;face<7;face++){
   state.head=head;state.face=face;update();
   const headImages=Object.fromEntries(Object.keys(DATA.rig.files).map(id=>[id,id==='1'?player.images[id]:blank]));
   const combined={...headImages};for(const id of ['4','11','12'])combined[id]=player.images[id];
@@ -28,5 +28,5 @@ with sync_playwright() as p:
   }
  }
  return {combinations,hairPixels};
- }''');assert result['combinations']==75;assert not errors,errors;print('75 combinações/expressões: cabelo preservado em',result['hairPixels'],'pixels.');browser.close()
+ }''');assert result['combinations']==108;assert not errors,errors;print('108 combinações/expressões: cabelo preservado em',result['hairPixels'],'pixels.');browser.close()
 server.shutdown()

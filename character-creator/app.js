@@ -6,10 +6,10 @@ let state={...defaults},view='assembled',playing=true,time=0,last=performance.no
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
 const definitions=[
- {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.']]},
- {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.'],['Fallen · rosto','As três expressões originais do pacote enviado.']]},
- {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.']]},
- {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.']]},
+ {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.'],['Espectral · capuz','Capuz do novo pacote, preservando o desenho original.']]},
+ {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.'],['Fallen · rosto','As três expressões originais do pacote enviado.'],['Espectral · rosto','Olhar marcado e três expressões originais.']]},
+ {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.'],['Espectral · túnica','Túnica com asas, braços, mãos e pernas do novo pacote.']]},
+ {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.'],['Cajado espectral','Cajado mágico com efeito azul do novo pacote.']]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
 const animationLabels={'Idle':'Em repouso','Idle Blinking':'Repouso · piscar','Walking':'Caminhando','Running':'Correndo','Slashing':'Ataque básico','Throwing':'Arremesso','Kicking':'Chute','Run Slashing':'Corrida + ataque','Run Throwing':'Corrida + arremesso','Sliding':'Deslizando','Jump Start':'Início do salto','Jump Loop':'No ar','Slashing in The Air':'Ataque no ar','Throwing in The Air':'Arremesso no ar','Falling Down':'Caindo','Hurt':'Recebendo dano','Dying':'Morte'};
@@ -26,7 +26,7 @@ function selectedSCML(){
  return new XMLSerializer().serializeToString(doc);
 }
 function tintedEffect(){
- const source=registry[state.effectShape===1?'packs/fallen/SlashFX.png':'original/SlashFX.png'],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
+ const source=registry[['original/SlashFX.png','packs/fallen/SlashFX.png','packs/spectral/SlashFX.png'][state.effectShape??0]],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
  const image=ctx.getImageData(0,0,c.width,c.height),d=image.data,hex=effects[state.effect][1].slice(1),rgb=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16));
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const lum=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,white=Math.max(0,(lum-.72)/.28)*.65;for(let k=0;k<3;k++)d[i+k]=Math.round(rgb[k]*(.6+.4*lum)*(1-white)+255*white)}
  ctx.putImageData(image,0,0);return c;
@@ -60,9 +60,13 @@ function applyFallen(){
  state={head:5,face:5,outfit:6,accessory:4,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#a59d98',brows:'#a59d98',eyes:'#92bed9'}};
  select.value='Idle';time=0;update();status.textContent='Conjunto Fallen completo, com todas as peças do ZIP.';
 }
+function applySpectral(){
+ state={head:6,face:6,outfit:7,accessory:5,effect:0,effectShape:2,colors:{skin:'#d3bcb4',hair:'#514646',brows:'#afa9a7',eyes:'#92bed9'}};
+ select.value='Idle';time=0;update();status.textContent='Conjunto Espectral completo, com todas as peças do novo ZIP.';
+}
 function buildColorControls(){
  const section=document.getElementById('colors');
- for(const [key,label]of Object.entries({skin:'Pele',hair:'Cabelo',brows:'Sobrancelhas',eyes:'Olhos'})){
+ for(const [key,label]of Object.entries({skin:'Pele',hair:'Cabelo / capuz',brows:'Sobrancelhas',eyes:'Olhos'})){
   const row=document.createElement('label');row.className='colorControl';const text=document.createElement('span');text.textContent=label;
   const input=document.createElement('input');input.type='color';input.dataset.material=key;input.setAttribute('aria-label','Cor: '+label);input.value=state.colors[key];
   const output=document.createElement('output');output.textContent=input.value;
@@ -72,8 +76,8 @@ function buildColorControls(){
 // Each hairstyle retains its own original outline and integrated ear.
 // Register the complete drawing to the former silver head's facial proportions.
 function assembledHead(){
- const name=['bald','short','silver','blue','blond','fallen'][state.head];
- const image=colored(state.head===5?'packs/fallen/Head.png':'heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
+ const name=['bald','short','silver','blue','blond','fallen','spectral'][state.head];
+ const image=colored(state.head>=5?'packs/'+name+'/Head.png':'heads/'+name+'.png',{skin:state.colors.skin,hair:state.colors.hair});
  const placement=DATA.headRegistration.styles[name];
  const c=makeCanvas(480,480),ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';
  ctx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);
@@ -88,8 +92,8 @@ function textureMatrix(value,file){
 }
 function faceCoverage(){
  if(faceCoverageCache.has(state.head))return faceCoverageCache.get(state.head);
- const name=['bald','short','silver','blue','blond','fallen'][state.head],placement=DATA.headRegistration.styles[name];
- const key=state.head===5?'masks/packs/fallen/Head-skin.png':'masks/heads/'+name+'-skin.png';
+ const name=['bald','short','silver','blue','blond','fallen','spectral'][state.head],placement=DATA.headRegistration.styles[name];
+ const key=state.head>=5?'masks/packs/'+name+'/Head-skin.png':'masks/heads/'+name+'-skin.png';
  const headMask=makeCanvas(480,480),headCtx=headMask.getContext('2d');headCtx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);headCtx.drawImage(registry[key],0,0);
  const base=DATA.rig.animations.find(a=>a.name==='Base');
  const transforms=Object.values(base.timelines).flat().map(k=>k.transform);
@@ -106,20 +110,20 @@ function refreshTextures(){
  images['1']=assembledHead();
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
-  else images[id]=faceBehindHair(colored('faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes}));
+  else images[id]=faceBehindHair(colored('faces/'+['focused','adventurer','veteran','ranger','fallen','spectral'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes}));
  }
  if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
  if(state.outfit>=3&&state.outfit<=5){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
- if(state.outfit===6)for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/fallen/'+DATA.rig.files[id].name,{skin:state.colors.skin});
- images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png'][state.accessory]]:makeCanvas(400,128);
+ if(state.outfit>=6){const pack=['fallen','spectral'][state.outfit-6];for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/'+pack+'/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
+ images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png','packs/spectral/Sword.png'][state.accessory]]:makeCanvas(400,128);
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
 }
 function validState(value){
  if(!value||typeof value!=='object')throw Error('Arquivo de escolhas inválido.');
  for(const def of definitions)if(!Number.isInteger(value[def.id])||value[def.id]<0||value[def.id]>=def.options.length)throw Error('Escolha inválida: '+def.label);
  const colors={...defaultColors,...value.colors};for(const key of Object.keys(defaultColors))if(!/^#[0-9a-f]{6}$/i.test(colors[key]))throw Error('Cor inválida: '+key);
- const effectShape=value.effectShape??0;if(!Number.isInteger(effectShape)||effectShape<0||effectShape>1)throw Error('Forma de efeito inválida.');
+ const effectShape=value.effectShape??0;if(!Number.isInteger(effectShape)||effectShape<0||effectShape>2)throw Error('Forma de efeito inválida.');
  return {...Object.fromEntries(definitions.map(def=>[def.id,value[def.id]])),colors,effectShape};
 }
 function persist(){try{localStorage.setItem('chibi-creator-v1',JSON.stringify({...state,headOptionsVersion:2,faceOptionsVersion:2}))}catch{}}
@@ -147,14 +151,14 @@ function previewExpression(index){
  if(playing)document.getElementById('playPause').click();renderExpressionChoices();render();
 }
 function expressionThumbnail(file){
- if(state.face!==5)return file;
+ if(state.face<5)return file;
  return {'Face 02.png':'Face 03.png','Face 03.png':'Face 02.png'}[file]||file;
 }
 function renderExpressionChoices(){
  const row=document.getElementById('expressionChoices');if(!row)return;row.replaceChildren();row.hidden=!state.face;if(!state.face)return;
  for(const [index,[name,file]] of [['Aberto','Face 01.png'],['Piscar','Face 03.png'],['Dano','Face 02.png']].entries()){
   const button=document.createElement('button');button.className='expressionChoice';button.setAttribute('aria-label','Ver expressão: '+name);button.setAttribute('aria-pressed',String(!playing&&select.value===['Idle','Idle Blinking','Hurt'][index]));
-  const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+expressionThumbnail(file)];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
+  const image=new Image();image.alt='';image.src=DATA.images['faces/'+['focused','adventurer','veteran','ranger','fallen','spectral'][state.face-1]+'/'+expressionThumbnail(file)];const label=document.createElement('span');label.textContent=name;button.append(image,label);button.onclick=()=>previewExpression(index);row.append(button);
  }
 }
 function setupEditorTabs(){
@@ -184,7 +188,7 @@ function buildControls(){
   row.append(previous,name,next);const desc=document.createElement('p');desc.className='description';section.append(top,row,desc);
   if(def.id==='effect'){const swatches=document.createElement('div');swatches.className='swatches';effects.forEach(([name,color],i)=>{const button=document.createElement('button');button.className='swatch';button.style.setProperty('--swatch',color);button.setAttribute('aria-label',name);button.onclick=()=>{state.effect=i;select.value='Slashing';time=200;setView('assembled');update()};swatches.append(button)});section.append(swatches)}
   if(def.id==='face'){const row=document.createElement('div');row.id='expressionChoices';row.className='expressionChoices';row.setAttribute('aria-label','Expressões do rosto');section.append(row)}
-  if(def.id==='effect'){const label=document.createElement('label');label.className='effectShape';label.textContent='Traço do ataque';const shape=document.createElement('select');shape.id='effectShape';shape.setAttribute('aria-label','Traço do ataque');shape.add(new Option('Arco Ranger','0'));shape.add(new Option('Arco Fallen','1'));shape.onchange=()=>{state.effectShape=Number(shape.value);select.value='Slashing';time=200;setView('assembled');update()};label.append(shape);section.append(label)}
+  if(def.id==='effect'){const label=document.createElement('label');label.className='effectShape';label.textContent='Traço do ataque';const shape=document.createElement('select');shape.id='effectShape';shape.setAttribute('aria-label','Traço do ataque');shape.add(new Option('Arco Ranger','0'));shape.add(new Option('Arco Fallen','1'));shape.add(new Option('Arco Espectral','2'));shape.onchange=()=>{state.effectShape=Number(shape.value);select.value='Slashing';time=200;setView('assembled');update()};label.append(shape);section.append(label)}
   document.getElementById('options').append(section);
  }
 }
