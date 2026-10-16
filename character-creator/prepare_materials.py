@@ -100,4 +100,6 @@ def main():
  expressions()
  from prepare_sly_face import main as sly
  sly()
+ from prepare_keen_face import main as keen
+ keen()
 if __name__=='__main__':main()

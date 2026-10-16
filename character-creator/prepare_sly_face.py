@@ -1,7 +1,7 @@
 """Register the sly face atlas without changing the other catalog entries."""
 from pathlib import Path
 import numpy as np
-from PIL import Image
+from PIL import Image,ImageFilter
 from scipy.ndimage import label,find_objects,distance_transform_edt
 ROOT=Path(__file__).resolve().parent
 
@@ -20,6 +20,8 @@ def main():
    d[region,:3]=base
    m=np.zeros_like(d);m[:,:,:3]=128;m[:,:,3]=np.where(region,d[:,:,3],0)
    dest=ROOT/'assets/masks/faces/sly'/(Path(name).stem+'-'+material+'.png');dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(m).save(dest)
-  dest=ROOT/'assets/faces/sly'/name;dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(d).save(dest)
+  # Add a two-pixel charcoal stroke beneath the original drawing.
+  original=Image.fromarray(d);stroke=Image.new('RGBA',original.size,(27,26,24,0));stroke.putalpha(original.getchannel('A').filter(ImageFilter.MaxFilter(5)));stroke.alpha_composite(original)
+  dest=ROOT/'assets/faces/sly'/name;dest.parent.mkdir(parents=True,exist_ok=True);stroke.save(dest)
  print('Prepared Astuto: open, blink and hurt, with independent color masks.')
 if __name__=='__main__':main()

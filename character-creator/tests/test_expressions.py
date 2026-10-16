@@ -6,12 +6,12 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]/'assets'
 class ExpressionParts(unittest.TestCase):
  def test_registered_expressions_and_materials(self):
-  for profile in ['focused','adventurer','veteran','sly']:
+  for profile in ['focused','adventurer','veteran','sly','keen']:
    images=[]
    for name in ['Face 01','Face 02','Face 03']:
     with self.subTest(profile=profile,expression=name):
      im=Image.open(ROOT/'faces'/profile/(name+'.png')).convert('RGBA');self.assertEqual(im.size,(320,240));a=np.array(im);images.append(a.tobytes())
-     l,t,r,b=im.getchannel('A').getbbox();self.assertGreaterEqual(l,60);self.assertGreaterEqual(t,53);self.assertLessEqual(r,264);self.assertLessEqual(b,182)
+     l,t,r,b=im.getchannel('A').getbbox();stroke=2 if profile=='sly' else 0;self.assertGreaterEqual(l,60-stroke);self.assertGreaterEqual(t,53-stroke);self.assertLessEqual(r,264+stroke);self.assertLessEqual(b,182+stroke)
      white=(a[:,:,0]>180)&(a[:,:,1]>180)&(a[:,:,2]>160)&(a[:,:,3]>240)
      masks=[]
      for material in ['eyes','brows']:
