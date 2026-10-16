@@ -300,3 +300,11 @@ rosto ou traje pelas setas preserva arma e escudo. As opções de Arma e Escudo
 também têm um botão Nenhum para remover o equipamento diretamente.
 `tests/check_weapon_persistence.py` confere 1242 frames, mudanças de aparência,
 remoção de equipamentos, persistência e igualdade dos rigs de prévia/SCML.
+
+
+A cabeça do Mago roxo usa registro uniforme de 1,10 nos dois eixos, com
+compensação de posição (-15,-43), mantendo a base no pescoço e um contorno
+visível de aproximadamente 400×402, próximo das cabeças Fallen e Espectral.
+O PNG de origem continua em 480×480; a montagem e as máscaras de rosto usam
+o mesmo registro, aplicado também às peças exportadas. Os testes verificam
+escala uniforme, base do pescoço, ausência de recorte e sobreposição do cabelo.

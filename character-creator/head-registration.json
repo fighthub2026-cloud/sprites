@@ -51,10 +51,10 @@
       "offsetY": 0
     },
     "mage-tunic": {
-      "scaleX": 1,
-      "offsetX": 0,
-      "scaleY": 1,
-      "offsetY": 0
+      "scaleX": 1.1,
+      "offsetX": -15,
+      "scaleY": 1.1,
+      "offsetY": -43
     }
   }
 }

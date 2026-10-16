@@ -60,7 +60,8 @@ def main():
     face=np.zeros_like(d);face[:,:,:3]=128;face[:,:,3]=np.where(binary_erosion(skin,iterations=2),255,0)
     Image.fromarray(face).save(ROOT/'assets/masks/packs/mage-tunic/Head-face.png')
     config=json.loads((ROOT/'head-registration.json').read_text())
-    config['styles']['mage-tunic']={'scaleX':1,'offsetX':0,'scaleY':1,'offsetY':0}
+    # Match the other imported heads' ~400px footprint, anchored at the neck.
+    config['styles']['mage-tunic']={'scaleX':1.1,'offsetX':-15,'scaleY':1.1,'offsetY':-43}
     (ROOT/'head-registration.json').write_text(json.dumps(config,indent=2)+'\n')
     print('Prepared four mage components at native dimensions; Fallen limbs shared at runtime.')
 

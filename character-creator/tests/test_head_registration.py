@@ -13,7 +13,17 @@ class HeadRegistration(unittest.TestCase):
   target=np.array(Image.open(ROOT/'assets/masks/heads/silver-skin.png'))[:,:,3]>0;ref=np.flatnonzero(target[row])
   for name,placement in config['styles'].items():
    with self.subTest(head=name):
-    if name in ('fallen','spectral','guardian','mage-tunic'):
+    if name=='mage-tunic':
+     self.assertEqual(placement,{'scaleX':1.1,'offsetX':-15,'scaleY':1.1,'offsetY':-43})
+     l,t,r,b=Image.open(ROOT/'assets/packs/mage-tunic/Head.png').getbbox()
+     self.assertEqual(placement['scaleX'],placement['scaleY'])
+     self.assertGreater((r-l)*placement['scaleX'],395)
+     self.assertGreater((b-t)*placement['scaleY'],400)
+     self.assertAlmostEqual(b*placement['scaleY']+placement['offsetY'],430,delta=1)
+     self.assertGreaterEqual(l*placement['scaleX']+placement['offsetX'],0)
+     self.assertLessEqual(r*placement['scaleX']+placement['offsetX'],480)
+     continue
+    if name in ('fallen','spectral','guardian'):
      self.assertEqual(placement,{'scaleX':1,'offsetX':0,'scaleY':1,'offsetY':0});continue
     mask_path=ROOT/'assets/masks/packs'/name/'Head-skin.png' if name in ('fallen','spectral','guardian','mage-tunic') else ROOT/'assets/masks/heads'/f'{name}-skin.png'
     source=np.array(Image.open(mask_path))[:,:,3]>0;xs=np.flatnonzero(source[row]);scale=placement['scaleX'];offset=placement['offsetX']
