@@ -8,7 +8,7 @@ O personagem começa careca, sem rosto, com roupa básica e sem acessório. As s
 alteram independentemente cabeça/cabelo/capuz, rosto, corpo/roupa, acessório e cor do efeito.
 
 - 5 opções de cabeça: careca, curto preto, prateado, azul e loiro.
-- 5 opções de rosto, incluindo a base sem rosto, Severo, Determinado, Resoluto e Ranger.
+- 6 opções de rosto: Sem rosto, Severo, Determinado, Resoluto, Ranger e Astuto.
 - 6 roupas: básica, Ranger, mago, couro com rebites, colete com medalhão e peitoral de aço.
 - Seletores independentes de pele, cabelo, sobrancelhas e olhos. Máscaras de materiais preservam contornos e convertem sombras e brilhos em sobreposições neutras.
 - Pele compartilhada por cabeça e mãos descobertas dos trajes Colete e Peitoral; as luvas não são recoloridas.
@@ -106,3 +106,8 @@ mantêm o mesmo registro. O PNG `Head.png` exportado já inclui essa montagem.
 
 A base careca ampliada e as camadas de cabelo extraídas da versão anterior foram
 removidas. Teste: `python -m unittest discover -s character-creator/tests -v`.
+
+O rosto Astuto usa olhos estreitos e sorriso de canto inspirados na referência.
+Inclui aberto, piscar e dano, com máscaras independentes de sobrancelhas e íris.
+`prepare_sly_face.py` registra o atlas `sources/sly-expressions.png`; a preparação
+geral de materiais também chama esse passo.

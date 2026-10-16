@@ -6,7 +6,7 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]/'assets'
 class ExpressionParts(unittest.TestCase):
  def test_registered_expressions_and_materials(self):
-  for profile in ['focused','adventurer','veteran']:
+  for profile in ['focused','adventurer','veteran','sly']:
    images=[]
    for name in ['Face 01','Face 02','Face 03']:
     with self.subTest(profile=profile,expression=name):
