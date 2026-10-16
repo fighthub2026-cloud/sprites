@@ -290,3 +290,13 @@ alfa exato de `outfits/basic/Body.png`, incluindo a largura em todas as linhas,
 e atualiza também `exports/mago-tunica/Body.png`. A cabeça e os braços mantêm
 seus alfas de origem. `test_mage_tunic_body.py` compara a silhueta inteira,
 sem depender apenas do tamanho da tela ou da caixa delimitadora.
+
+
+Armas equipadas permanecem visíveis em todas as ações, inclusive repouso, piscar,
+caminhada e dano. `selectedRig()` e `selectedSCML()` normalizam apenas a opacidade
+da peça Sword.png para 1; as posições, ângulos, pivôs e os movimentos originais
+permanecem iguais. Nenhum em Arma usa uma textura transparente. Trocar cabelo,
+rosto ou traje pelas setas preserva arma e escudo. As opções de Arma e Escudo
+também têm um botão Nenhum para remover o equipamento diretamente.
+`tests/check_weapon_persistence.py` confere 1242 frames, mudanças de aparência,
+remoção de equipamentos, persistência e igualdade dos rigs de prévia/SCML.

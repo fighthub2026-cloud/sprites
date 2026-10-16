@@ -25,6 +25,9 @@ with sync_playwright() as p:
   page.locator('#tab-appearance').click()
   for cat in ['head','face','outfit','accessory','shield','effect']:
    page.locator('[data-category='+cat+']').click();page.locator('[data-option='+cat+'] .arrow').last.click();assert page.evaluate('activeCategory')==cat
+   if cat in ['accessory','shield']:
+    assert page.locator('[data-option='+cat+'] .equipmentClear').is_visible()
+    assert page.evaluate('''()=>{const b=document.querySelector('[data-option]:not([hidden]) .equipmentClear').getBoundingClientRect(),p=document.querySelector('.editorBody').getBoundingClientRect();return b.bottom<=p.bottom+1&&b.right<=innerWidth}'''),(w,h,cat,'Nenhum fora do painel')
   page.evaluate('applyLook(1);activateCategory("head")');page.screenshot(path=str(out/f'ui-{w}x{h}.png'))
   print(w,h,'2 abas, 6 categorias e controles sem cortes OK')
  assert page.locator('#variants,.variant').count()==0

@@ -19,11 +19,18 @@ for(const name of Object.keys(DATA.rig.frameCounts))select.add(new Option(animat
 select.value='Idle';
 
 function makeCanvas(width,height){const c=document.createElement('canvas');c.width=width;c.height=height;return c}
-// Keep native weapon bones, pivots, visibility and keyframes in every action.
-function selectedRig(){return structuredClone(state.shield?DATA.shieldRig:DATA.rig)}
+// Equipped weapons keep their native movement, but remain visible in every action.
+function selectedRig(){
+ const rig=structuredClone(state.shield?DATA.shieldRig:DATA.rig);
+ for(const animation of rig.animations)for(const timeline of Object.values(animation.timelines))for(const key of timeline){
+  if(key.transform.file==='9')key.transform.a=1;
+ }
+ return rig;
+}
 function selectedSCML(){
  const doc=new DOMParser().parseFromString(state.shield?DATA.shieldSCML:DATA.scml,'application/xml');
  doc.querySelector('entity').setAttribute('name','CustomAvatar');
+ doc.querySelectorAll('timeline key object[file="9"]').forEach(weapon=>weapon.setAttribute('a','1'));
  return new XMLSerializer().serializeToString(doc);
 }
 const weaponReachCache=new WeakMap();
@@ -164,7 +171,7 @@ function update(){
  refreshTextures();persist();
  const shape=document.getElementById('effectShape');if(shape)shape.value=String(state.effectShape??0);
  document.querySelectorAll('[data-material]').forEach(input=>{input.value=state.colors[input.dataset.material];input.previousElementSibling.textContent=input.value});
- for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length}
+ for(const def of definitions){const item=document.querySelector('[data-option="'+def.id+'"]');item.querySelector('.choice').textContent=def.options[state[def.id]][0];item.querySelector('.description').textContent=def.options[state[def.id]][1];item.querySelector('.counter').textContent=(state[def.id]+1)+' / '+def.options.length;const clear=item.querySelector('.equipmentClear');if(clear)clear.disabled=state[def.id]===0}
  renderExpressionChoices();
  document.querySelectorAll('.swatch').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===state.effect)));
  render();
@@ -219,6 +226,10 @@ function buildControls(){
   const name=document.createElement('span');name.className='choice';name.setAttribute('aria-live','polite');
   const next=document.createElement('button');next.className='arrow';next.textContent='›';next.setAttribute('aria-label','Próximo: '+def.label);next.onclick=()=>change(def.id,1);
   row.append(previous,name,next);const desc=document.createElement('p');desc.className='description';section.append(top,row,desc);
+  if(def.id==='shield'||def.id==='accessory'){
+   const clear=document.createElement('button');clear.className='look equipmentClear';clear.textContent='Nenhum';clear.setAttribute('aria-label',def.id==='shield'?'Ficar sem escudo':'Ficar sem arma');
+   clear.onclick=()=>{state[def.id]=0;update()};section.append(clear);
+  }
   if(def.id==='effect'){const swatches=document.createElement('div');swatches.className='swatches';effects.forEach(([name,color],i)=>{const button=document.createElement('button');button.className='swatch';button.style.setProperty('--swatch',color);button.setAttribute('aria-label',name);button.onclick=()=>{state.effect=i;select.value='Slashing';time=200;setView('assembled');update()};swatches.append(button)});section.append(swatches)}
   if(def.id==='face'){const row=document.createElement('div');row.id='expressionChoices';row.className='expressionChoices';row.setAttribute('aria-label','Expressões do rosto');section.append(row)}
   if(def.id==='effect'){const label=document.createElement('label');label.className='effectShape';label.textContent='Traço do ataque';const shape=document.createElement('select');shape.id='effectShape';shape.setAttribute('aria-label','Traço do ataque');shape.add(new Option('Arco Ranger','0'));shape.add(new Option('Arco Fallen','1'));shape.add(new Option('Arco Espectral','2'));shape.add(new Option('Arco Valquíria','3'));shape.onchange=()=>{state.effectShape=Number(shape.value);select.value='Slashing';time=200;setView('assembled');update()};label.append(shape);section.append(label)}
@@ -272,7 +283,7 @@ async function exportSprites(){
   for(const [key,url] of Object.entries(DATA.images)){if(key.startsWith('imported/guardian/'))await zip.add('CustomAvatar/Source Packs/Valquiria/'+key.split('/').at(-1),new Uint8Array(await (await fetch(url)).arrayBuffer()))}
   await zip.add('CustomAvatar/Source Packs/Valquiria/Animations.scml',DATA.guardianSCML);
   await zip.add('CustomAvatar/Source Packs/Valquiria/Animations.autosave.scml',DATA.guardianViewsSCML);
-  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG (14 com escudo), rig SCML e 207 frames em 17 animações.\nO escudo é independente e usa o osso, pivô e movimento do conjunto Valquíria enviado pelo usuário.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\nCajados e escudos adicionais: pacotes Craftpix 996712 e 781198 fornecidos pelo usuário; licença original Craftpix.\n');
+  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG (14 com escudo), rig SCML e 207 frames em 17 animações.\nO escudo é independente e usa o osso, pivô e movimento do conjunto Valquíria enviado pelo usuário.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas equipadas permanecem visíveis em todos os frames e usam os movimentos e pivôs originais.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\nCajados e escudos adicionais: pacotes Craftpix 996712 e 781198 fornecidos pelo usuário; licença original Craftpix.\n');
   download(zip.finish(),'CustomAvatar-sprites.zip');status.textContent='Pronto: '+Object.keys(player.rig.files).length+' peças e 207 frames exportados.';
  }catch(error){status.textContent=error.message}finally{setBusy(false)}
 }
