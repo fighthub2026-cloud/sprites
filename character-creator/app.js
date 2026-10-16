@@ -1,7 +1,7 @@
 const DATA=JSON.parse(document.getElementById('catalog').textContent);
 const canvas=document.getElementById('preview'),status=document.getElementById('status');
 const defaultColors={skin:'#dbbe9a',hair:'#40505a',brows:'#734b2e',eyes:'#307d60'};
-const defaults={head:0,face:0,outfit:0,accessory:0,effect:0,effectShape:0,colors:{...defaultColors}};
+const defaults={head:0,face:0,outfit:0,accessory:0,shield:0,effect:0,effectShape:0,colors:{...defaultColors}};
 let state={...defaults},view='assembled',playing=true,time=0,last=performance.now(),busy=false,cancelled=false;
 const registry={},player=new SpriterPlayer();
 const effects=[['Azul arcano','#49bce7'],['Verde floresta','#8fc66d'],['Violeta','#b283ed'],['Chama','#ed8e4e'],['Gelo','#a9e9ed'],['Dourado','#e0c16f']];
@@ -9,7 +9,8 @@ const definitions=[
  {id:'head',label:'Cabelo',options:[['Careca','Cabeça básica, sem cabelo.'],['Cabelo curto','Corte preto, com formas simples.'],['Cabelo prateado','Penteado para trás.'],['Cabelo azul','Curto, com mechas geométricas.'],['Cabelo loiro','Corte arredondado com franja.'],['Fallen · cabelo','Cabelo longo prateado do pacote enviado.'],['Espectral · capuz','Capuz do novo pacote, preservando o desenho original.']]},
  {id:'face',label:'Rosto',options:[['Sem rosto','Uma base em branco para começar.'],['Severo','Sobrancelhas marcadas e olhar estreito.'],['Determinado','Sobrancelhas angulares e olhar confiante.'],['Resoluto','Traços firmes e expressão séria.'],['Rosto Ranger','Expressões originais, incluindo piscar e dano.'],['Fallen · rosto','As três expressões originais do pacote enviado.'],['Espectral · rosto','Olhar marcado e três expressões originais.']]},
  {id:'outfit',label:'Corpo / roupa',options:[['Roupa básica','Túnica marrom, cinto e botas simples.'],['Ranger','Roupa verde e couro do ZIP de referência.'],['Mago','Traje azul no molde original, com mangas, luvas e botas.'],['Armadura de couro','Couro escuro com rebites e mãos protegidas por luvas.'],['Colete com medalhão','Colete marrom, gola e medalhão. Mãos descobertas.'],['Peitoral de aço','Peitoral cinza e túnica curta. Mãos descobertas.'],['Fallen · armadura','Armadura, ombreiras, mãos e botas do pacote enviado.'],['Espectral · túnica','Túnica com asas, braços, mãos e pernas do novo pacote.']]},
- {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.'],['Cajado espectral','Cajado mágico com efeito azul do novo pacote.']]},
+ {id:'accessory',label:'Acessório',options:[['Nenhum','Mãos livres.'],['Cajado de cristal','Madeira e cristal azul.'],['Clava','Madeira escura com pontas.'],['Bastão Ranger','O acessório original do Ranger.'],['Espada Fallen','Espada original do pacote enviado.'],['Cajado espectral','Cajado mágico com efeito azul do novo pacote.'],...DATA.equipment.staves.map(item=>[item.name,'Cajado do pacote Craftpix, com tamanho e encaixe originais.'])]},
+ {id:'shield',label:'Escudo',options:[['Nenhum','Sem escudo.'],...DATA.equipment.shields.map(item=>[item.name,'Escudo na outra mão; pode ser combinado com qualquer arma.'])]},
  {id:'effect',label:'Cor do efeito',options:effects.map(([name])=>[name,'A cor aparece nas animações de ataque.'])}
 ];
 const animationLabels={'Idle':'Em repouso','Idle Blinking':'Repouso · piscar','Walking':'Caminhando','Running':'Correndo','Slashing':'Ataque básico','Throwing':'Arremesso','Kicking':'Chute','Run Slashing':'Corrida + ataque','Run Throwing':'Corrida + arremesso','Sliding':'Deslizando','Jump Start':'Início do salto','Jump Loop':'No ar','Slashing in The Air':'Ataque no ar','Throwing in The Air':'Arremesso no ar','Falling Down':'Caindo','Hurt':'Recebendo dano','Dying':'Morte'};
@@ -57,11 +58,11 @@ function applyLook(index){
  state={...state,...structuredClone(looks[index])};update();
 }
 function applyFallen(){
- state={head:5,face:5,outfit:6,accessory:4,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#cec4be',brows:'#a59d98',eyes:'#92bed9'}};
+ state={head:5,face:5,outfit:6,accessory:4,shield:0,effect:0,effectShape:1,colors:{skin:'#d3bcb4',hair:'#cec4be',brows:'#a59d98',eyes:'#92bed9'}};
  select.value='Idle';time=0;update();status.textContent='Conjunto Fallen completo, com todas as peças do ZIP.';
 }
 function applySpectral(){
- state={head:6,face:6,outfit:7,accessory:5,effect:0,effectShape:2,colors:{skin:'#d3bcb4',hair:'#514646',brows:'#eae2df',eyes:'#92bed9'}};
+ state={head:6,face:6,outfit:7,accessory:5,shield:0,effect:0,effectShape:2,colors:{skin:'#d3bcb4',hair:'#514646',brows:'#eae2df',eyes:'#92bed9'}};
  select.value='Idle';time=0;update();status.textContent='Conjunto Espectral completo, com todas as peças do novo ZIP.';
 }
 function buildColorControls(){
@@ -116,11 +117,18 @@ function refreshTextures(){
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}
  if(state.outfit>=3&&state.outfit<=5){const kind=['leather','vest','plate'][state.outfit-3];images['0']=registry['outfits/'+kind+'/Body.png'];for(const id of ['2','5'])images[id]=registry['outfits/'+kind+'/'+DATA.rig.files[id].name];if(state.outfit!==3)for(const id of ['3','6'])images[id]=colored('hands/bare/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
  if(state.outfit>=6){const pack=['fallen','spectral'][state.outfit-6];for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/'+pack+'/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
- images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png','packs/spectral/Sword.png'][state.accessory]]:makeCanvas(400,128);
+ images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png','packs/spectral/Sword.png',...DATA.equipment.staves.map(item=>item.key)][state.accessory]]:makeCanvas(400,128);
+ if(state.shield){
+  // Bake the shield into the front hand's native plane. Its bone and every
+  // action remain shared by the preview, PNG export and original 13-part SCML.
+  const hand=makeCanvas(128,128),ctx=hand.getContext('2d');ctx.drawImage(images['3'],0,0);
+  ctx.drawImage(registry[DATA.equipment.shields[state.shield-1].key],0,0,128,128);images['3']=hand;
+ }
  images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
 }
 function validState(value){
  if(!value||typeof value!=='object')throw Error('Arquivo de escolhas inválido.');
+ value={shield:0,...value};
  for(const def of definitions)if(!Number.isInteger(value[def.id])||value[def.id]<0||value[def.id]>=def.options.length)throw Error('Escolha inválida: '+def.label);
  const colors={...defaultColors,...value.colors};for(const key of Object.keys(defaultColors))if(!/^#[0-9a-f]{6}$/i.test(colors[key]))throw Error('Cor inválida: '+key);
  const effectShape=value.effectShape??0;if(!Number.isInteger(effectShape)||effectShape<0||effectShape>2)throw Error('Forma de efeito inválida.');
@@ -162,7 +170,7 @@ function renderExpressionChoices(){
  }
 }
 function setupEditorTabs(){
- const icons={head:'♟',face:'◉',outfit:'♜',accessory:'⚔',effect:'✧'},labels={head:'Cabelo',face:'Rosto',outfit:'Traje',accessory:'Arma',effect:'Efeito'};
+ const icons={head:'♟',face:'◉',outfit:'♜',accessory:'⚔',shield:'⛨',effect:'✧'},labels={head:'Cabelo',face:'Rosto',outfit:'Traje',accessory:'Arma',shield:'Escudo',effect:'Efeito'};
  for(const def of definitions){
   const button=document.createElement('button');button.dataset.category=def.id;button.id='category-'+def.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','option-'+def.id);button.setAttribute('aria-label',def.label);
   const icon=document.createElement('span');icon.className='categoryIcon';icon.setAttribute('aria-hidden','true');icon.textContent=icons[def.id];const text=document.createElement('span');text.textContent=labels[def.id];button.append(icon,text);button.onclick=()=>activateCategory(def.id);document.getElementById('categoryTabs').append(button);
@@ -236,7 +244,7 @@ async function exportSprites(){
     status.textContent=`Exportando ${++done}/207 · ${animationLabels[name]||name}`;
    }
   }
-  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\n');
+  await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG, rig SCML e 207 frames em 17 animações.\nO escudo, quando escolhido, acompanha a mão dianteira em Right Hand.png sem exigir outro rig.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas usam os movimentos e pivôs originais, incluindo sua visibilidade em cada ação.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\nCajados e escudos adicionais: pacotes Craftpix 996712 e 781198 fornecidos pelo usuário; licença original Craftpix.\n');
   download(zip.finish(),'CustomAvatar-sprites.zip');status.textContent='Pronto: 13 peças e 207 frames exportados.';
  }catch(error){status.textContent=error.message}finally{setBusy(false)}
 }
@@ -244,7 +252,7 @@ document.getElementById('assembledView').onclick=()=>setView('assembled');docume
 document.getElementById('playPause').onclick=()=>{playing=!playing;document.getElementById('playPause').textContent=playing?'Ⅱ':'▶';document.getElementById('playPause').setAttribute('aria-label',playing?'Pausar animação':'Reproduzir animação');renderExpressionChoices()};
 select.onchange=()=>{time=0;renderExpressionChoices();render()};document.getElementById('speed').oninput=e=>{document.getElementById('speedValue').textContent=Number(e.target.value).toLocaleString('pt-BR')+'×'};
 document.getElementById('reset').onclick=()=>{state={...defaults};select.value='Idle';time=0;status.textContent='Base careca e sem rosto.';update()};
-document.getElementById('example').onclick=()=>{state={head:2,face:1,outfit:2,accessory:1,effect:0,effectShape:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
+document.getElementById('example').onclick=()=>{state={head:2,face:1,outfit:2,accessory:1,shield:0,effect:0,effectShape:0,colors:{...defaultColors}};select.value='Slashing';time=200;status.textContent='Mago montado no molde original, com o movimento completo do cajado.';update()};
 document.getElementById('exportPNG').onclick=async()=>{try{const c=makeCanvas(900,900);player.draw(c,select.value,time);download(await blobOf(c),'CustomAvatar.png');status.textContent='PNG transparente exportado.'}catch(error){status.textContent=error.message}};
 document.getElementById('exportZIP').onclick=exportSprites;document.getElementById('cancelExport').onclick=()=>{cancelled=true};
 async function init(){

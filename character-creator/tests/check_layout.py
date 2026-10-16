@@ -23,10 +23,10 @@ with sync_playwright() as p:
    return {pageFits:document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth,bad};}''')
    assert checks['pageFits'] and not checks['bad'],(w,h,tab,checks)
   page.locator('#tab-appearance').click()
-  for cat in ['head','face','outfit','accessory','effect']:
+  for cat in ['head','face','outfit','accessory','shield','effect']:
    page.locator('[data-category='+cat+']').click();page.locator('[data-option='+cat+'] .arrow').last.click();assert page.evaluate('activeCategory')==cat
   page.evaluate('applyLook(1);activateCategory("head")');page.screenshot(path=str(out/f'ui-{w}x{h}.png'))
-  print(w,h,'2 abas, 5 categorias e controles sem cortes OK')
+  print(w,h,'2 abas, 6 categorias e controles sem cortes OK')
  assert page.locator('#variants,.variant').count()==0
  # Download and keyboard navigation still work with the tab panels.
  page.locator('#tab-appearance').focus();page.keyboard.press('ArrowRight');assert page.locator('#tab-colors').get_attribute('aria-selected')=='true'

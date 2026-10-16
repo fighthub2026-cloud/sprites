@@ -174,7 +174,7 @@ A cabeça e as feições usam escala e posição nativas, sem achatamento. Pele 
 rosto e áreas descobertas das mãos; roupa, asas e luvas mantêm seus materiais.
 O seletor Cabelo / capuz recolore o capuz com sombras e brilhos. Na expressão
 aberta, a cor das sobrancelhas altera só o preenchimento, preservando o contorno.
-Piscar e dano mantêm sobrancelhas inteiramente pretas, seguindo o padrão Fallen.
+Piscar e dano mantêm o mesmo preenchimento colorido e sombra da expressão aberta.
 O capuz oculta feições que invadiriam suas mechas, inclusive nos arquivos exportados.
 
 Testes do conjunto: `python character-creator/tests/check_spectral.py` e
@@ -185,10 +185,37 @@ em uma tela; o novo pacote também exporta 13 peças e 207 frames em 17 ações.
 Na sobrancelha aberta do Espectral, a faixa superior é a cor base escolhida
 e a inferior é uma sombra neutra multiplicada por 0,75, equivalente a uma camada
 de cinza transparente. As duas acompanham a mesma cor, sem clarear a faixa
-superior para branco. Os contornos e as expressões fechadas permanecem pretos.
+superior para branco. Os contornos permanecem pretos em todas as expressões.
 
-As máscaras das orelhas removem pequenas ilhas de brilho e estabilizam o tom
-perto do contorno, sem alterar o alfa ou o desenho das linhas. No cabelo Fallen,
+As máscaras das orelhas usam preenchimento uniforme na área da orelha para
+remover faixas da textura original, sem alterar o alfa ou o desenho das linhas. No cabelo Fallen,
 o cinza intermediário é a cor base; as áreas originalmente escuras usam sombra
 (neutra, multiplicada) e as claras usam brilho branco parcial. Os pixels de
 antialias escuros não recebem mais o tom de brilho por ambiguidade de paleta.
+
+
+## Cajados e escudos Craftpix
+
+As setas de **Arma** incluem os 40 cajados do pacote 996712. A categoria
+**Escudo** contém os 40 escudos do pacote 781198 e a opção Nenhum. São oito
+modelos com cinco variações por pacote; arma e escudo podem ser combinados.
+Os PNGs em `assets/accessories/staves/` e `assets/accessories/shields/` são
+cópias exatas dos arquivos enviados. `equipment.json` registra nomes e origem.
+
+Os cajados já usam a tela nativa 400 × 128 do rig e mantêm seus movimentos,
+pivôs e visibilidade por ação. O escudo é encaixado na tela 128 × 128 da mão
+dianteira (Right Hand.png), acompanhando seu osso e ordem de desenho. A montagem
+continua com 13 peças; PNG, SCML e os 207 frames exportados usam a mesma textura
+composta. Escolhas salvas em versões anteriores recebem Nenhum para escudo.
+
+Para importar novamente a partir dos dois ZIPs originais:
+
+```sh
+python character-creator/import_equipment.py /caminho/cajados.zip /caminho/escudos.zip
+python character-creator/build.py
+python character-creator/tests/check_equipment.py
+python character-creator/tests/check_layout.py
+```
+
+Arte fornecida pelo usuário, sujeita à licença original Craftpix:
+https://craftpix.net/file-licenses/

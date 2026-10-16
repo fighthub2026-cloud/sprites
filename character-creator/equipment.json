@@ -1,0 +1,406 @@
+{
+  "staves": [
+    {
+      "name": "Cajado 1 · variante 1",
+      "key": "accessories/staves/1-1.png",
+      "source": "PNG/Staves_1/1.png"
+    },
+    {
+      "name": "Cajado 1 · variante 2",
+      "key": "accessories/staves/1-2.png",
+      "source": "PNG/Staves_1/2.png"
+    },
+    {
+      "name": "Cajado 1 · variante 3",
+      "key": "accessories/staves/1-3.png",
+      "source": "PNG/Staves_1/3.png"
+    },
+    {
+      "name": "Cajado 1 · variante 4",
+      "key": "accessories/staves/1-4.png",
+      "source": "PNG/Staves_1/4.png"
+    },
+    {
+      "name": "Cajado 1 · variante 5",
+      "key": "accessories/staves/1-5.png",
+      "source": "PNG/Staves_1/5.png"
+    },
+    {
+      "name": "Cajado 2 · variante 1",
+      "key": "accessories/staves/2-1.png",
+      "source": "PNG/Staves_2/1.png"
+    },
+    {
+      "name": "Cajado 2 · variante 2",
+      "key": "accessories/staves/2-2.png",
+      "source": "PNG/Staves_2/2.png"
+    },
+    {
+      "name": "Cajado 2 · variante 3",
+      "key": "accessories/staves/2-3.png",
+      "source": "PNG/Staves_2/3.png"
+    },
+    {
+      "name": "Cajado 2 · variante 4",
+      "key": "accessories/staves/2-4.png",
+      "source": "PNG/Staves_2/4.png"
+    },
+    {
+      "name": "Cajado 2 · variante 5",
+      "key": "accessories/staves/2-5.png",
+      "source": "PNG/Staves_2/5.png"
+    },
+    {
+      "name": "Cajado 3 · variante 1",
+      "key": "accessories/staves/3-1.png",
+      "source": "PNG/Staves_3/1.png"
+    },
+    {
+      "name": "Cajado 3 · variante 2",
+      "key": "accessories/staves/3-2.png",
+      "source": "PNG/Staves_3/2.png"
+    },
+    {
+      "name": "Cajado 3 · variante 3",
+      "key": "accessories/staves/3-3.png",
+      "source": "PNG/Staves_3/3.png"
+    },
+    {
+      "name": "Cajado 3 · variante 4",
+      "key": "accessories/staves/3-4.png",
+      "source": "PNG/Staves_3/4.png"
+    },
+    {
+      "name": "Cajado 3 · variante 5",
+      "key": "accessories/staves/3-5.png",
+      "source": "PNG/Staves_3/5.png"
+    },
+    {
+      "name": "Cajado 4 · variante 1",
+      "key": "accessories/staves/4-1.png",
+      "source": "PNG/Staves_4/1.png"
+    },
+    {
+      "name": "Cajado 4 · variante 2",
+      "key": "accessories/staves/4-2.png",
+      "source": "PNG/Staves_4/2.png"
+    },
+    {
+      "name": "Cajado 4 · variante 3",
+      "key": "accessories/staves/4-3.png",
+      "source": "PNG/Staves_4/3.png"
+    },
+    {
+      "name": "Cajado 4 · variante 4",
+      "key": "accessories/staves/4-4.png",
+      "source": "PNG/Staves_4/4.png"
+    },
+    {
+      "name": "Cajado 4 · variante 5",
+      "key": "accessories/staves/4-5.png",
+      "source": "PNG/Staves_4/5.png"
+    },
+    {
+      "name": "Cajado 5 · variante 1",
+      "key": "accessories/staves/5-1.png",
+      "source": "PNG/Staves_5/1.png"
+    },
+    {
+      "name": "Cajado 5 · variante 2",
+      "key": "accessories/staves/5-2.png",
+      "source": "PNG/Staves_5/2.png"
+    },
+    {
+      "name": "Cajado 5 · variante 3",
+      "key": "accessories/staves/5-3.png",
+      "source": "PNG/Staves_5/3.png"
+    },
+    {
+      "name": "Cajado 5 · variante 4",
+      "key": "accessories/staves/5-4.png",
+      "source": "PNG/Staves_5/4.png"
+    },
+    {
+      "name": "Cajado 5 · variante 5",
+      "key": "accessories/staves/5-5.png",
+      "source": "PNG/Staves_5/5.png"
+    },
+    {
+      "name": "Cajado 6 · variante 1",
+      "key": "accessories/staves/6-1.png",
+      "source": "PNG/Staves_6/1.png"
+    },
+    {
+      "name": "Cajado 6 · variante 2",
+      "key": "accessories/staves/6-2.png",
+      "source": "PNG/Staves_6/2.png"
+    },
+    {
+      "name": "Cajado 6 · variante 3",
+      "key": "accessories/staves/6-3.png",
+      "source": "PNG/Staves_6/3.png"
+    },
+    {
+      "name": "Cajado 6 · variante 4",
+      "key": "accessories/staves/6-4.png",
+      "source": "PNG/Staves_6/4.png"
+    },
+    {
+      "name": "Cajado 6 · variante 5",
+      "key": "accessories/staves/6-5.png",
+      "source": "PNG/Staves_6/5.png"
+    },
+    {
+      "name": "Cajado 7 · variante 1",
+      "key": "accessories/staves/7-1.png",
+      "source": "PNG/Staves_7/1.png"
+    },
+    {
+      "name": "Cajado 7 · variante 2",
+      "key": "accessories/staves/7-2.png",
+      "source": "PNG/Staves_7/2.png"
+    },
+    {
+      "name": "Cajado 7 · variante 3",
+      "key": "accessories/staves/7-3.png",
+      "source": "PNG/Staves_7/3.png"
+    },
+    {
+      "name": "Cajado 7 · variante 4",
+      "key": "accessories/staves/7-4.png",
+      "source": "PNG/Staves_7/4.png"
+    },
+    {
+      "name": "Cajado 7 · variante 5",
+      "key": "accessories/staves/7-5.png",
+      "source": "PNG/Staves_7/5.png"
+    },
+    {
+      "name": "Cajado 8 · variante 1",
+      "key": "accessories/staves/8-1.png",
+      "source": "PNG/Staves_8/1.png"
+    },
+    {
+      "name": "Cajado 8 · variante 2",
+      "key": "accessories/staves/8-2.png",
+      "source": "PNG/Staves_8/2.png"
+    },
+    {
+      "name": "Cajado 8 · variante 3",
+      "key": "accessories/staves/8-3.png",
+      "source": "PNG/Staves_8/3.png"
+    },
+    {
+      "name": "Cajado 8 · variante 4",
+      "key": "accessories/staves/8-4.png",
+      "source": "PNG/Staves_8/4.png"
+    },
+    {
+      "name": "Cajado 8 · variante 5",
+      "key": "accessories/staves/8-5.png",
+      "source": "PNG/Staves_8/5.png"
+    }
+  ],
+  "shields": [
+    {
+      "name": "Escudo 1 · variante 1",
+      "key": "accessories/shields/1-1.png",
+      "source": "PNG/Shield_1/1.png"
+    },
+    {
+      "name": "Escudo 1 · variante 2",
+      "key": "accessories/shields/1-2.png",
+      "source": "PNG/Shield_1/2.png"
+    },
+    {
+      "name": "Escudo 1 · variante 3",
+      "key": "accessories/shields/1-3.png",
+      "source": "PNG/Shield_1/3.png"
+    },
+    {
+      "name": "Escudo 1 · variante 4",
+      "key": "accessories/shields/1-4.png",
+      "source": "PNG/Shield_1/4.png"
+    },
+    {
+      "name": "Escudo 1 · variante 5",
+      "key": "accessories/shields/1-5.png",
+      "source": "PNG/Shield_1/5.png"
+    },
+    {
+      "name": "Escudo 2 · variante 1",
+      "key": "accessories/shields/2-1.png",
+      "source": "PNG/Shield_2/1.png"
+    },
+    {
+      "name": "Escudo 2 · variante 2",
+      "key": "accessories/shields/2-2.png",
+      "source": "PNG/Shield_2/2.png"
+    },
+    {
+      "name": "Escudo 2 · variante 3",
+      "key": "accessories/shields/2-3.png",
+      "source": "PNG/Shield_2/3.png"
+    },
+    {
+      "name": "Escudo 2 · variante 4",
+      "key": "accessories/shields/2-4.png",
+      "source": "PNG/Shield_2/4.png"
+    },
+    {
+      "name": "Escudo 2 · variante 5",
+      "key": "accessories/shields/2-5.png",
+      "source": "PNG/Shield_2/5.png"
+    },
+    {
+      "name": "Escudo 3 · variante 1",
+      "key": "accessories/shields/3-1.png",
+      "source": "PNG/Shield_3/1.png"
+    },
+    {
+      "name": "Escudo 3 · variante 2",
+      "key": "accessories/shields/3-2.png",
+      "source": "PNG/Shield_3/2.png"
+    },
+    {
+      "name": "Escudo 3 · variante 3",
+      "key": "accessories/shields/3-3.png",
+      "source": "PNG/Shield_3/3.png"
+    },
+    {
+      "name": "Escudo 3 · variante 4",
+      "key": "accessories/shields/3-4.png",
+      "source": "PNG/Shield_3/4.png"
+    },
+    {
+      "name": "Escudo 3 · variante 5",
+      "key": "accessories/shields/3-5.png",
+      "source": "PNG/Shield_3/5.png"
+    },
+    {
+      "name": "Escudo 4 · variante 1",
+      "key": "accessories/shields/4-1.png",
+      "source": "PNG/Shield_4/1.png"
+    },
+    {
+      "name": "Escudo 4 · variante 2",
+      "key": "accessories/shields/4-2.png",
+      "source": "PNG/Shield_4/2.png"
+    },
+    {
+      "name": "Escudo 4 · variante 3",
+      "key": "accessories/shields/4-3.png",
+      "source": "PNG/Shield_4/3.png"
+    },
+    {
+      "name": "Escudo 4 · variante 4",
+      "key": "accessories/shields/4-4.png",
+      "source": "PNG/Shield_4/4.png"
+    },
+    {
+      "name": "Escudo 4 · variante 5",
+      "key": "accessories/shields/4-5.png",
+      "source": "PNG/Shield_4/5.png"
+    },
+    {
+      "name": "Escudo 5 · variante 1",
+      "key": "accessories/shields/5-1.png",
+      "source": "PNG/Shield_5/1.png"
+    },
+    {
+      "name": "Escudo 5 · variante 2",
+      "key": "accessories/shields/5-2.png",
+      "source": "PNG/Shield_5/2.png"
+    },
+    {
+      "name": "Escudo 5 · variante 3",
+      "key": "accessories/shields/5-3.png",
+      "source": "PNG/Shield_5/3.png"
+    },
+    {
+      "name": "Escudo 5 · variante 4",
+      "key": "accessories/shields/5-4.png",
+      "source": "PNG/Shield_5/4.png"
+    },
+    {
+      "name": "Escudo 5 · variante 5",
+      "key": "accessories/shields/5-5.png",
+      "source": "PNG/Shield_5/5.png"
+    },
+    {
+      "name": "Escudo 6 · variante 1",
+      "key": "accessories/shields/6-1.png",
+      "source": "PNG/Shield_6/1.png"
+    },
+    {
+      "name": "Escudo 6 · variante 2",
+      "key": "accessories/shields/6-2.png",
+      "source": "PNG/Shield_6/2.png"
+    },
+    {
+      "name": "Escudo 6 · variante 3",
+      "key": "accessories/shields/6-3.png",
+      "source": "PNG/Shield_6/3.png"
+    },
+    {
+      "name": "Escudo 6 · variante 4",
+      "key": "accessories/shields/6-4.png",
+      "source": "PNG/Shield_6/4.png"
+    },
+    {
+      "name": "Escudo 6 · variante 5",
+      "key": "accessories/shields/6-5.png",
+      "source": "PNG/Shield_6/5.png"
+    },
+    {
+      "name": "Escudo 7 · variante 1",
+      "key": "accessories/shields/7-1.png",
+      "source": "PNG/Shield_7/1.png"
+    },
+    {
+      "name": "Escudo 7 · variante 2",
+      "key": "accessories/shields/7-2.png",
+      "source": "PNG/Shield_7/2.png"
+    },
+    {
+      "name": "Escudo 7 · variante 3",
+      "key": "accessories/shields/7-3.png",
+      "source": "PNG/Shield_7/3.png"
+    },
+    {
+      "name": "Escudo 7 · variante 4",
+      "key": "accessories/shields/7-4.png",
+      "source": "PNG/Shield_7/4.png"
+    },
+    {
+      "name": "Escudo 7 · variante 5",
+      "key": "accessories/shields/7-5.png",
+      "source": "PNG/Shield_7/5.png"
+    },
+    {
+      "name": "Escudo 8 · variante 1",
+      "key": "accessories/shields/8-1.png",
+      "source": "PNG/Shield_8/1.png"
+    },
+    {
+      "name": "Escudo 8 · variante 2",
+      "key": "accessories/shields/8-2.png",
+      "source": "PNG/Shield_8/2.png"
+    },
+    {
+      "name": "Escudo 8 · variante 3",
+      "key": "accessories/shields/8-3.png",
+      "source": "PNG/Shield_8/3.png"
+    },
+    {
+      "name": "Escudo 8 · variante 4",
+      "key": "accessories/shields/8-4.png",
+      "source": "PNG/Shield_8/4.png"
+    },
+    {
+      "name": "Escudo 8 · variante 5",
+      "key": "accessories/shields/8-5.png",
+      "source": "PNG/Shield_8/5.png"
+    }
+  ]
+}
