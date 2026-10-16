@@ -9,12 +9,28 @@ from prepare_native import outline
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT/'assets/imported/mage-tunic'
 
+def broad_body():
+    """Register newly drawn cloth to the basic torso's exact silhouette."""
+    template=Image.open(ROOT/'assets/outfits/basic/Body.png').convert('RGBA')
+    alpha=np.array(template)[:,:,3];box=template.getbbox()
+    art=Image.open(ROOT/'sources/mage-tunic-body-wide.png').convert('RGBA')
+    visible=art.getchannel('A').point(lambda a:255 if a>128 else 0).getbbox()
+    art=art.crop(visible).resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.LANCZOS)
+    registered=Image.new('RGBA',template.size);registered.alpha_composite(art,box[:2])
+    d=np.array(registered)
+    # Only the new drawing is registered; the old narrow torso is never scaled.
+    # Basic's alpha fixes shoulder/chest width and every arm attachment edge.
+    d[(alpha>0)&(d[:,:,3]<128),:3]=[75,54,85]
+    edge=(alpha>0)&(distance_transform_edt(alpha>0)<=5)
+    d[edge,:3]=[27,26,24];d[:,:,3]=alpha
+    return outline(Image.fromarray(d))
+
 def main():
     dest = ROOT/'assets/packs/mage-tunic'
     dest.mkdir(parents=True, exist_ok=True)
     for name, size in [('Head.png',(480,480)),('Body.png',(320,320)),
                        ('Left Arm.png',(128,128)),('Right Arm.png',(128,128))]:
-        image = Image.open(SOURCE/name).convert('RGBA')
+        image = broad_body() if name=='Body.png' else Image.open(SOURCE/name).convert('RGBA')
         assert image.size == size, (name,image.size)
         image=outline(image)
         if name=='Head.png':

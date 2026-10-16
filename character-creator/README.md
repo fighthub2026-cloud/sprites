@@ -281,3 +281,12 @@ confere seleção persistida, mistura com os nove cabelos, uso real dos membros
 Fallen, cores independentes, 17 ações e exportação das 13 peças e 207 frames.
 `check_hair_occlusion.py` agora verifica 168 combinações/expressões;
 `check_layout.py` verifica os oito botões de combinação em 11 tamanhos de tela.
+
+
+O corpo do Mago roxo foi redesenhado com peito e ombros largos, usando a roupa
+básica como molde. A arte nova está em `sources/mage-tunic-body-wide.png`; o PNG
+antigo do ZIP permanece arquivado. A preparação registra a nova pintura no
+alfa exato de `outfits/basic/Body.png`, incluindo a largura em todas as linhas,
+e atualiza também `exports/mago-tunica/Body.png`. A cabeça e os braços mantêm
+seus alfas de origem. `test_mage_tunic_body.py` compara a silhueta inteira,
+sem depender apenas do tamanho da tela ou da caixa delimitadora.
