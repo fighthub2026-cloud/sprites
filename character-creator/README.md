@@ -308,3 +308,9 @@ visível de aproximadamente 400×402, próximo das cabeças Fallen e Espectral.
 O PNG de origem continua em 480×480; a montagem e as máscaras de rosto usam
 o mesmo registro, aplicado também às peças exportadas. Os testes verificam
 escala uniforme, base do pescoço, ausência de recorte e sobreposição do cabelo.
+
+
+A cabeça do Mago roxo foi retirada das opções do catálogo. O botão Mago roxo
+agora preserva o cabelo/cabeça escolhido e aplica apenas o conjunto do traje.
+Escolhas antigas com cabeça 8 migram para Cabelo prateado (2), mantendo as
+outras seleções salvas. A túnica, os braços e os membros Fallen permanecem.
