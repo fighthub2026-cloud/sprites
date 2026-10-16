@@ -109,4 +109,6 @@ def main():
  fallen()
  from prepare_spectral import main as spectral
  spectral()
+ from prepare_guardian import main as guardian
+ guardian()
 if __name__=='__main__':main()

@@ -179,7 +179,7 @@ O capuz oculta feições que invadiriam suas mechas, inclusive nos arquivos expo
 
 Testes do conjunto: `python character-creator/tests/check_spectral.py` e
 `python -m unittest discover -s character-creator/tests -v`. A verificação de
-sobreposição cobre 108 combinações de cabelos e expressões. A interface continua
+sobreposição cobre 147 combinações de cabelos e expressões. A interface continua
 em uma tela; o novo pacote também exporta 13 peças e 207 frames em 17 ações.
 
 Na sobrancelha aberta do Espectral, a faixa superior é a cor base escolhida
@@ -203,10 +203,11 @@ Os PNGs em `assets/accessories/staves/` e `assets/accessories/shields/` são
 cópias exatas dos arquivos enviados. `equipment.json` registra nomes e origem.
 
 Os cajados já usam a tela nativa 400 × 128 do rig e mantêm seus movimentos,
-pivôs e visibilidade por ação. O escudo é encaixado na tela 128 × 128 da mão
-dianteira (Right Hand.png), acompanhando seu osso e ordem de desenho. A montagem
-continua com 13 peças; PNG, SCML e os 207 frames exportados usam a mesma textura
-composta. Escolhas salvas em versões anteriores recebem Nenhum para escudo.
+pivôs e visibilidade por ação. O escudo mantém sua tela nativa 160 × 160 e é uma peça independente, usando
+o osso e as trilhas de movimento do pacote Valquíria. Ele acompanha o braço
+dianteiro e fica na frente da mão, com pivô e rotação próprios. A montagem tem
+14 peças com escudo e 13 sem escudo; PNG, SCML e os 207 frames exportados usam
+a mesma montagem. Escolhas antigas continuam com os mesmos índices.
 
 Para importar novamente a partir dos dois ZIPs originais:
 
@@ -219,3 +220,31 @@ python character-creator/tests/check_layout.py
 
 Arte fornecida pelo usuário, sujeita à licença original Craftpix:
 https://craftpix.net/file-licenses/
+
+
+## Valquíria e correção do escudo
+
+O botão **Valquíria** monta o conjunto principal do novo `Vector Parts.zip`:
+elmo/cabelo, rosto com três expressões, armadura com braços/luvas/botas, espada,
+escudo e efeito de ataque. As setas permitem misturar cada categoria com os
+conjuntos anteriores. O tridente alternativo do mesmo ZIP também está em Arma.
+Pele altera a cabeça e o colo exposto, preservando as luvas; Cabelo / capuz
+recolore as áreas de cabelo/elmo, e sobrancelhas/íris têm máscaras próprias.
+
+`prepare_guardian.py` mantém as dimensões e o alfa da arte e gera `shield.scml`
+e `shield-rig.json`. Esses rigs acrescentam somente a peça Shield.png e seu osso
+bone_008 ao rig anterior: os movimentos de cabeça, rosto, braços e arma não são
+alterados. As trilhas locais de escudo/osso são copiadas do SCML enviado, incluindo
+todos os keyframes, ângulos e transparências. Isso vale para o escudo Valquíria e
+os 40 escudos importados anteriormente; nenhum é mais reduzido e colado na mão.
+
+O pacote também contém vistas alternativas e um autosave de outra montagem.
+Todos os arquivos originais estão preservados em `assets/imported/guardian/`;
+o ZIP exportado inclui esses PNGs e os dois SCMLs em `Source Packs/Valquiria/`.
+As vistas alternativas permanecem em suas proporções originais; o editor usa
+as peças do SCML principal para a montagem em três quartos.
+
+Verificações: suíte `unittest` (25 testes), `tests/check_equipment.py` (40 pares,
+combinações da Valquíria, luvas/pele, 17 ações, 14 peças exportadas idênticas à
+prévia e 207 frames), `tests/check_hair_occlusion.py` (147 combinações/expressões)
+e `tests/check_layout.py` (11 tamanhos de tela).
