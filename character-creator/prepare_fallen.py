@@ -54,17 +54,10 @@ def main():
      brows|=labels==component+1
    d[brows,3]=255
   else:
-   # Closed expressions have a solid eyebrow stroke. Follow only its upper
-   # run in each column, never the eye/lash below it or a horizontal y cutoff.
-   dark=(d[:,:,3]>128)&(np.maximum.reduce([r,g,b])<75)
-   upper=np.zeros_like(dark)
-   for x in range(320):
-    rows=np.flatnonzero(dark[53:135,x])+53
-    if not len(rows) or rows[0]>125:continue
-    start=int(rows[0]);end=start
-    while end<160 and dark[end,x]:end+=1
-    upper[start:end,x]=True
-   brows=distance_transform_edt(upper)>2.5
+   # Fallen's closed-eye expressions use a solid charcoal eyebrow. They do
+   # not participate in eyebrow recoloring, unlike the normal open face.
+   brows=np.zeros_like(opaque)
+   d[opaque&(np.maximum.reduce([r,g,b])<75),:3]=INK.astype('uint8')
   eyes=opaque&(b>r*1.2)&(g>r*1.08)&(b>g*1.04)&(b>65)&~brows
   for material,region,base in [('brows',brows,[165,157,152]),('eyes',eyes,[146,190,217])]:
    d[region,:3]=base;m=np.zeros_like(d);m[:,:,:3]=128;m[:,:,3]=np.where(region,d[:,:,3],0)

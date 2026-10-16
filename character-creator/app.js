@@ -79,12 +79,34 @@ function assembledHead(){
  ctx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);
  ctx.drawImage(image,0,0);return c;
 }
+// Face textures sit on the same bone as Head. Clip their paint to exposed
+// skin in that shared coordinate system, so the original hair/outline wins.
+const faceCoverageCache=new Map();
+function textureMatrix(value,file){
+ const n=(key,fallback)=>Number(value[key]??file[key]??fallback);
+ return new DOMMatrix().translate(Number(value.x||0),-Number(value.y||0)).rotate(-Number(value.angle||0)).scale(Number(value.scale_x??1),Number(value.scale_y??1)).translate(-n('pivot_x',0)*Number(file.width),-(1-n('pivot_y',1))*Number(file.height));
+}
+function faceCoverage(){
+ if(faceCoverageCache.has(state.head))return faceCoverageCache.get(state.head);
+ const name=['bald','short','silver','blue','blond','fallen'][state.head],placement=DATA.headRegistration.styles[name];
+ const key=state.head===5?'masks/packs/fallen/Head-skin.png':'masks/heads/'+name+'-skin.png';
+ const headMask=makeCanvas(480,480),headCtx=headMask.getContext('2d');headCtx.setTransform(placement.scaleX,0,0,placement.scaleY,placement.offsetX,placement.offsetY);headCtx.drawImage(registry[key],0,0);
+ const base=DATA.rig.animations.find(a=>a.name==='Base');
+ const transforms=Object.values(base.timelines).flat().map(k=>k.transform);
+ const h=transforms.find(t=>t.file==='1'),f=transforms.find(t=>t.file==='4');
+ const relative=textureMatrix(f,DATA.rig.files['4']).inverse().multiply(textureMatrix(h,DATA.rig.files['1']));
+ const mask=makeCanvas(320,240),ctx=mask.getContext('2d');ctx.setTransform(relative);ctx.drawImage(headMask,0,0);
+ faceCoverageCache.set(state.head,mask);return mask;
+}
+function faceBehindHair(image){
+ const c=makeCanvas(320,240),ctx=c.getContext('2d');ctx.drawImage(image,0,0);ctx.globalCompositeOperation='destination-in';ctx.drawImage(faceCoverage(),0,0);return c;
+}
 function refreshTextures(){
  const images={};for(const [id,file] of Object.entries(DATA.rig.files))images[id]=registry['original/'+file.name];
  images['1']=assembledHead();
  for(const id of ['4','11','12']){
   if(!state.face)images[id]=makeCanvas(320,240);
-  else images[id]=colored('faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes});
+  else images[id]=faceBehindHair(colored('faces/'+['focused','adventurer','veteran','ranger','fallen'][state.face-1]+'/'+DATA.rig.files[id].name,{brows:state.colors.brows,eyes:state.colors.eyes}));
  }
  if(state.outfit===0){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/basic/'+DATA.rig.files[id].name]}
  if(state.outfit===2){for(const id of ['0','2','3','5','6','7','8'])images[id]=registry['outfits/mage/'+DATA.rig.files[id].name]}

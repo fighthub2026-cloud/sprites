@@ -37,4 +37,8 @@ class ImportedParts(unittest.TestCase):
   self.assertTrue(np.all(actual[:,:,3][mask]==255))
   ink=(original[:,:,:3].max(2)<43)&(original[:,:,3]>250)
   self.assertFalse(np.any(ink&mask));self.assertTrue(np.all(actual[ink,:3]==[27,26,24]))
+ def test_closed_fallen_brows_have_no_recoloring_mask(self):
+  for name in ['Face 02','Face 03']:
+   mask=np.array(Image.open(ROOT/'assets/masks/faces/fallen'/(name+'-brows.png')))
+   self.assertFalse(np.any(mask[:,:,3]))
 if __name__=='__main__':unittest.main()

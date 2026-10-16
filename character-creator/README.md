@@ -140,8 +140,8 @@ Testes: `python -m unittest discover -s character-creator/tests -v` e
 `python character-creator/tests/check_fallen.py` (Playwright e Chromium).
 
 No rosto Fallen, a máscara da sobrancelha aberta cobre somente o interior
-fechado pelo contorno original. Nas expressões fechadas, acompanha o interior
-do traço superior e preserva uma borda preta, sem atingir o olho ou os cílios.
+fechado pelo contorno original. Nas expressões de piscar e dano do Fallen, a sobrancelha fica totalmente preta
+como os contornos, sem responder ao seletor de cor.
 
 Todas as opções de rosto agora ocupam um plano de 232 × 152 px para as feições
 na expressão aberta, centrado em (163, 118) na textura de 320 × 240. Olhos,
@@ -153,3 +153,9 @@ A cabeça Fallen usa o tamanho, a posição e a proporção exatos do ZIP origin
 escala horizontal e vertical iguais a 1, sem alongamento ou alargamento. O teste
 do conjunto compara a silhueta montada pixel a pixel com o alfa do Head.png
 original, além de validar a exportação.
+
+O cabelo e seu contorno ficam à frente das feições: as texturas faciais são
+recortadas pela área de pele exposta da cabeça escolhida, no mesmo sistema
+de coordenadas do rig. Assim a sobrancelha não invade as mechas. O recorte
+é aplicado também aos PNGs exportados, mantendo a montagem SCML com 13 peças.
+Verificação visual automatizada: `python character-creator/tests/check_hair_occlusion.py`.
