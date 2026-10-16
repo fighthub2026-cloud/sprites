@@ -248,3 +248,11 @@ Verificações: suíte `unittest` (25 testes), `tests/check_equipment.py` (40 pa
 combinações da Valquíria, luvas/pele, 17 ações, 14 peças exportadas idênticas à
 prévia e 207 frames), `tests/check_hair_occlusion.py` (147 combinações/expressões)
 e `tests/check_layout.py` (11 tamanhos de tela).
+
+
+O alcance do arco acompanha o comprimento visível da arma, com uma pequena
+margem antes da ponta. A textura mantém a tela 496 × 496 e o centro original
+do arco; o rig não recebe deslocamento global. Isso mantém o ajuste idêntico
+na prévia, nas peças PNG, no SCML e nas sequências exportadas.
+Verificação da ponta em 47 armas × 4 efeitos, na pose final do ataque básico:
+`python character-creator/tests/check_effect_reach.py`.

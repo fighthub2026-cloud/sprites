@@ -20,25 +20,34 @@ select.value='Idle';
 
 function makeCanvas(width,height){const c=document.createElement('canvas');c.width=width;c.height=height;return c}
 // Keep native weapon bones, pivots, visibility and keyframes in every action.
-const effectRecoil=32;
-function selectedRig(){
- const rig=structuredClone(state.shield?DATA.shieldRig:DATA.rig);
- for(const animation of rig.animations)for(const timeline of Object.values(animation.timelines))for(const key of timeline){
-  if(key.transform.file==='10')key.transform.x=Number(key.transform.x??0)-effectRecoil;
- }
- return rig;
-}
+function selectedRig(){return structuredClone(state.shield?DATA.shieldRig:DATA.rig)}
 function selectedSCML(){
  const doc=new DOMParser().parseFromString(state.shield?DATA.shieldSCML:DATA.scml,'application/xml');
  doc.querySelector('entity').setAttribute('name','CustomAvatar');
- doc.querySelectorAll('timeline key object[file="10"]').forEach(effect=>effect.setAttribute('x',Number(effect.getAttribute('x')??0)-effectRecoil));
  return new XMLSerializer().serializeToString(doc);
 }
-function tintedEffect(){
+const weaponReachCache=new WeakMap();
+function attackEffectScale(weapon){
+ if(!state.accessory)return 1;
+ if(weaponReachCache.has(weapon))return weaponReachCache.get(weapon);
+ const c=makeCanvas(weapon.width,weapon.height),ctx=c.getContext('2d');ctx.drawImage(weapon,0,0);
+ const pixels=ctx.getImageData(0,0,c.width,c.height).data;let tip=0;
+ for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++)if(pixels[(y*c.width+x)*4+3]>=64)tip=Math.max(tip,x+1);
+ // The native weapon grip is near x=48. Shorter weapons need a smaller arc
+ // radius, keeping its origin fixed rather than shifting the whole slash.
+ const scale=Math.max(.55,Math.min(1,(tip-48-18)/(372-48)));
+ weaponReachCache.set(weapon,scale);return scale;
+}
+function tintedEffect(weapon){
  const source=registry[['original/SlashFX.png','packs/fallen/SlashFX.png','packs/spectral/SlashFX.png','packs/guardian/SlashFX.png'][state.effectShape??0]],c=makeCanvas(source.width,source.height),ctx=c.getContext('2d');ctx.drawImage(source,0,0);
  const image=ctx.getImageData(0,0,c.width,c.height),d=image.data,hex=effects[state.effect][1].slice(1),rgb=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16));
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const lum=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,white=Math.max(0,(lum-.72)/.28)*.65;for(let k=0;k<3;k++)d[i+k]=Math.round(rgb[k]*(.6+.4*lum)*(1-white)+255*white)}
- ctx.putImageData(image,0,0);return c;
+ ctx.putImageData(image,0,0);
+ const scale=attackEffectScale(weapon);if(scale===1)return c;
+ const fitted=makeCanvas(c.width,c.height),fx=fitted.getContext('2d');
+ // All four native slash textures share the lower-left center of their arc.
+ const originX=40,originY=484;fx.translate(originX,originY);fx.scale(scale,scale);fx.translate(-originX,-originY);fx.drawImage(c,0,0);
+ return fitted;
 }
 const colorCache=new Map();
 function colored(key,materials){
@@ -131,7 +140,7 @@ function refreshTextures(){
  if(state.outfit>=6){const pack=['fallen','spectral','guardian'][state.outfit-6];for(const id of ['0','2','3','5','6','7','8'])images[id]=colored('packs/'+pack+'/'+DATA.rig.files[id].name,{skin:state.colors.skin})}
  images['9']=state.accessory?registry[['','accessories/Staff.png','accessories/Club.png','original/Sword.png','packs/fallen/Sword.png','packs/spectral/Sword.png',...DATA.equipment.staves.map(item=>item.key),'packs/guardian/Sword.png','accessories/GuardianTrident.png'][state.accessory]]:makeCanvas(400,128);
  if(state.shield)images['13']=registry[state.shield===41?'packs/guardian/Shield.png':DATA.equipment.shields[state.shield-1].key];
- images['10']=tintedEffect();player.images=images;player.rig=selectedRig();
+ images['10']=tintedEffect(images['9']);player.images=images;player.rig=selectedRig();
 }
 function validState(value){
  if(!value||typeof value!=='object')throw Error('Arquivo de escolhas inválido.');
