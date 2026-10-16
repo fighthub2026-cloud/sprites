@@ -326,3 +326,9 @@ mechas, em vez de recolorir toda a paleta cinza compartilhada com o metal.
 As marcas rosas nas bochechas da Valquíria foram removidas na preparação da
 cabeça, restaurando a cor de pele sob o preenchimento e suas bordas. As novas
 áreas entram na máscara de pele e acompanham o seletor em todas as expressões.
+
+
+O ZIP exportado também inclui a cabeça corrigida em `Source Packs/Valquiria/Head.png`,
+evitando reintroduzir o blush ao importar essa pasta. O PNG individual corrigido
+está em `exports/valquiria/Head.png`. O original enviado permanece arquivado
+somente em `assets/imported/guardian/` como referência de origem.

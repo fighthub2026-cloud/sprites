@@ -411,7 +411,12 @@ async function exportSprites(){
     status.textContent=`Exportando ${++done}/207 · ${animationLabels[name]||name}`;
    }
   }
-  for(const [key,url] of Object.entries(DATA.images)){if(key.startsWith('imported/guardian/'))await zip.add('CustomAvatar/Source Packs/Valquiria/'+key.split('/').at(-1),new Uint8Array(await (await fetch(url)).arrayBuffer()))}
+  for(const [key,url] of Object.entries(DATA.images)){if(key.startsWith('imported/guardian/')){
+   // Ship the corrected head here too; importing the source pack must not
+   // bring the removed pink cheek marks back into a new character.
+   const texture=key==='imported/guardian/Head.png'?DATA.images['packs/guardian/Head.png']:url;
+   await zip.add('CustomAvatar/Source Packs/Valquiria/'+key.split('/').at(-1),new Uint8Array(await (await fetch(texture)).arrayBuffer()));
+  }}
   await zip.add('CustomAvatar/Source Packs/Valquiria/Animations.scml',DATA.guardianSCML);
   await zip.add('CustomAvatar/Source Packs/Valquiria/Animations.autosave.scml',DATA.guardianViewsSCML);
   await zip.add('CustomAvatar/README.txt','Personagem montado no criador chibi.\n13 peças PNG (14 com escudo), rig SCML e 207 frames em 17 animações.\nO escudo é independente e usa o osso, pivô e movimento do conjunto Valquíria enviado pelo usuário.\nCabeça e cabelo são variantes de Head.png; o rosto é independente.\nTodos os rostos preservam as três expressões originais. Armas equipadas permanecem visíveis em todos os frames e usam os movimentos e pivôs originais.\nRig e peças de referência: Forest_Ranger_3 fornecido pelo usuário, sujeito à licença original Craftpix: https://craftpix.net/file-licenses/\nCajados e escudos adicionais: pacotes Craftpix 996712 e 781198 fornecidos pelo usuário; licença original Craftpix.\n');

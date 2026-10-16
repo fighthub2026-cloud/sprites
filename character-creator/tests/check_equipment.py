@@ -81,6 +81,7 @@ try:
             assert config['state']['head'] == 7 and config['state']['face'] == 7 and config['state']['outfit'] == 8
             assert len(expected) == 14
             assert archive.read('CustomAvatar/Source Packs/Valquiria/Shield.png') == (ROOT/'character-creator/assets/imported/guardian/Shield.png').read_bytes()
+            assert archive.read('CustomAvatar/Source Packs/Valquiria/Head.png') == (ROOT/'character-creator/assets/packs/guardian/Head.png').read_bytes()
             for name, url in expected.items():
                 actual = np.array(Image.open(io.BytesIO(archive.read('CustomAvatar/PNG/Vector Parts/'+name))))
                 reference = np.array(Image.open(io.BytesIO(base64.b64decode(url.split(',')[1]))))
